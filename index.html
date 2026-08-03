@@ -1496,9 +1496,68 @@ const HOOKS = {
    ALT is kept below as the raw second drafts, unused by the app. */
 function versions(i,j){
   const a = TOPICS[i].angles[j];
-  const hook = HOOKS[i + ':' + j];
-  return [hook ? hook + '\n\n' + a.text : a.text];
+  const key = i + ':' + j;
+  const hook = HOOKS[key];
+  const close = CLOSERS[key];
+  let body = hook ? hook + '\n\n' + a.text : a.text;
+  if (close) body += '\n\n' + close;
+  return [body];
 }
+/* The closing question. Sits under the action line so the post still gives a step,
+   then hands the reader something to answer. Specific to each post, never "what's your take". */
+const CLOSERS = {
+ "0:0":"When did anyone on your team last look at your decline rate?",
+ "0:1":"If you split last month's cancels three ways, which door would be widest?",
+ "0:2":"Would you feel helped or fined by your own failed payment email?",
+ "0:3":"Which of the three are you actually running right now?",
+ "0:4":"How much of last month's churn was a decision, and how much was a declined card?",
+ "1:0":"What's the last thing you asked a cancelling customer, before you offered them money?",
+ "1:1":"If I cancelled yours tomorrow, what would you want it to ask me?",
+ "1:2":"Which of the three is your cancel flow actually doing?",
+ "1:3":"What would your customers tell you on that screen, if you gave them room to?",
+ "1:4":"How many clicks does it take to cancel yours, and how many questions does it ask first?",
+ "2:0":"Do you know what your own first thirty days feels like, or are you guessing?",
+ "2:1":"What does a new subscriber hear from you in week one, other than a receipt?",
+ "2:2":"Who owns the two weeks after someone buys from you?",
+ "2:3":"Could you describe a good first week with your product in one sentence?",
+ "2:4":"Does your renewal notice remind anyone why they said yes in the first place?",
+ "3:0":"When was your welcome flow last edited?",
+ "3:1":"Which of the five are you missing, and how long has it been gone?",
+ "3:2":"Would you answer your own welcome email?",
+ "3:3":"What is the discount in your first email actually buying you?",
+ "3:4":"How many new customers read that email this month while nobody was looking at it?",
+ "4:0":"When did you last read your own flows the way a customer does?",
+ "4:1":"What would you have to believe to send one fewer email next week?",
+ "4:2":"Is your email problem actually an email problem?",
+ "4:3":"What are people really unsure about at the moment they leave the cart?",
+ "4:4":"Which of your flows can't you name a question for?",
+ "5:0":"Are your best customers getting the same email as complete strangers?",
+ "5:1":"Have you taught your customers to wait?",
+ "5:2":"What does your discounted cohort look like at month three?",
+ "5:3":"How many of your repeat buyers got a first-time discount this month?",
+ "5:4":"What is your next discount actually for?",
+ "6:0":"Which category are you comparing your number to?",
+ "6:1":"What's your LTV with margin in it, rather than revenue?",
+ "6:2":"Is annual billing a reward at your brand, or a trap?",
+ "6:3":"If you had to split your churn three ways right now, could you?",
+ "6:4":"How many of your subscribers are actually active, not just not-cancelled?",
+ "7:0":"What would happen to your revenue per email if you sent one fewer a week?",
+ "7:1":"How much of your email revenue would have happened without the email?",
+ "7:2":"Which of those four is weakest at your brand?",
+ "7:3":"Can you answer those three about your own product?",
+ "7:4":"Who owns the space between the ad and the second charge at your company?",
+ "8:0":"Does your curve flatten, or does it just keep falling?",
+ "8:1":"Have you ever asked someone who left what would have made them stay?",
+ "8:2":"Do you know what a customer costs you, against what they're worth?",
+ "8:3":"When did you last read your own flows end to end?",
+ "8:4":"Is your next flow the fix, or the fifth thing you've built instead of fixing one?",
+ "9:0":"Would you be glad to get your own emails?",
+ "9:1":"When did you last send something with nothing to buy in it?",
+ "9:2":"Which of those four questions does your post-purchase email answer?",
+ "9:3":"Does your cancel flow offer a pause, or only a discount?",
+ "9:4":"What's the version you keep rewriting instead of sending?"
+};
+
 /* what's actually on screen: her edit if she made one, else ours */
 function currentText(){
   return edits[editId(curTopic,curAngle,curVer)] ?? versions(curTopic,curAngle)[curVer];

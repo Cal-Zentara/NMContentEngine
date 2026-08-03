@@ -411,7 +411,7 @@
   <section class="screen on" id="s-topics">
     <div class="eyebrow">Nirvana <span class="lime">&middot;</span> Content Engine</div>
     <h1>What are we posting?</h1>
-    <p class="sub">Pick a topic and a finished post is waiting: the copy and the graphic that carries it. Some are written two ways, tap between them and tell us which one sounds like you.</p>
+    <p class="sub">Pick a topic and a finished post is waiting. Edit anything you like, and your edits come straight back to Chris. Topic 01 has its posters made; the rest show what the poster will say.</p>
     <button class="planlink" onclick="goPlan()"><span class="dot"></span>The plan: what to post, and when</button>
     <div class="topics" id="topicGrid"></div>
   </section>
@@ -431,12 +431,12 @@
     </div>
 
     <div class="plansec">
-      <h2>Every ten posts</h2>
+      <h2>The mix, across the eight weeks</h2>
       <div class="mix">
-        <div class="mixrow"><span class="n">5</span><span class="what">Brings buyers</span><span class="for">A specific fix, ending with one thing they can go do. What a founder reads right before messaging you.</span></div>
-        <div class="mixrow"><span class="n">2</span><span class="what">Reaches new people</span><span class="for">No tactics, one line per paragraph. Something any business owner nods at, so it travels past your followers.</span></div>
-        <div class="mixrow"><span class="n">2</span><span class="what">Gets saved</span><span class="for">One idea with a name on it, plus a poster. People repeat a named idea without you in the room.</span></div>
-        <div class="mixrow"><span class="n">1</span><span class="what">Builds trust</span><span class="for">Your own story. The pivot. The founder who cried about her newsletter. The clients you told to send less.</span></div>
+        <div class="mixrow"><span class="n">7</span><span class="what">Brings buyers</span><span class="for">A specific fix, ending with one thing they can go do. What a founder reads right before messaging you.</span></div>
+        <div class="mixrow"><span class="n">4</span><span class="what">Reaches new people</span><span class="for">No tactics, one line per paragraph. Something any business owner nods at, so it travels past your followers.</span></div>
+        <div class="mixrow"><span class="n">3</span><span class="what">Gets saved</span><span class="for">One idea with a name on it, plus a poster. People repeat a named idea without you in the room.</span></div>
+        <div class="mixrow"><span class="n">2</span><span class="what">Builds trust</span><span class="for">Your own story. The pivot. The founder who cried about her newsletter. The clients you told to send less.</span></div>
       </div>
       <p class="plannote">Nothing that sells for the first eight weeks. Give, give, give, then ask.</p>
     </div>
@@ -458,7 +458,7 @@
       <h2>The two things only you can unlock</h2>
       <div class="needs">
         <div class="need"><b>Your real numbers</b><span>21 posts have a green Check first bar. That's where your own number should replace our careful general statement.</span></div>
-        <div class="need"><b>One brand you'd pull apart in public</b><span>A client, or any brand you're happy to take apart. That post gets shared more than anything else, and we have none, because we won't invent one.</span></div>
+        <div class="need"><b>One brand you'd pull apart in public</b><span>A client, or any brand you're happy to take apart. That post gets shared more than anything else, and not one of ours names a real brand, because we won't invent one.</span></div>
       </div>
     </div>
 
@@ -1637,7 +1637,7 @@ function openPost(i, j, v){
   document.getElementById('copyLabel').textContent = 'Copy caption';
 
   document.getElementById('editNote').innerHTML = isEdited
-    ? `You rewrote this one. <span class="lime">The engine reads your changes and writes the next batch closer to them.</span>
+    ? `You rewrote this one. <span class="lime">Chris gets your version and writes the next batch closer to it.</span>
        <button class="ghost" style="padding:6px 12px;margin-left:8px" onclick="revertEdit()">Undo my edit</button>`
     : '';
 

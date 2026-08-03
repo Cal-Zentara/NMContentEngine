@@ -296,6 +296,82 @@
     font-size:12.5px;font-family:inherit;text-decoration:underline;
   }
   footer button:hover{color:var(--ivory)}
+
+  /* ---- the plan screen ---- */
+  .planlink{
+    display:inline-flex;align-items:center;gap:9px;margin-top:26px;
+    background:none;border:1px solid var(--line);border-radius:999px;
+    color:var(--ivory);font-family:'Futuru',system-ui,sans-serif;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;
+    padding:11px 20px 10px;cursor:pointer;transition:border-color .25s,color .25s;
+  }
+  .planlink:hover{border-color:var(--limeade);color:var(--limeade)}
+  .planlink .dot{width:6px;height:6px;border-radius:50%;background:var(--limeade)}
+
+  .plansec{margin-top:64px}
+  .plansec > h2{
+    font-family:'Futuru',system-ui,sans-serif;
+    font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--limeade);font-weight:600;margin-bottom:18px;
+  }
+  .planbig{
+    font-family:'Masthic',Georgia,serif;font-size:clamp(21px,3vw,29px);
+    line-height:1.3;max-width:24ch;
+  }
+  .planbig em{font-style:normal;color:var(--limeade)}
+  .plannote{color:var(--muted);font-size:14.5px;max-width:56ch;margin-top:14px}
+
+  .lanes{display:grid;gap:14px;grid-template-columns:1fr}
+  @media(min-width:760px){.lanes{grid-template-columns:repeat(3,1fr)}}
+  .lane{
+    background:var(--evergreen);border-radius:var(--radius);
+    padding:24px 22px;border-top:3px solid var(--limeade);
+  }
+  .lane .ln{
+    font-family:'Futuru',system-ui,sans-serif;font-size:11px;
+    letter-spacing:.24em;color:var(--muted);display:block;margin-bottom:10px;
+  }
+  .lane h3{font-family:'Masthic',Georgia,serif;font-weight:400;font-size:23px;margin-bottom:9px}
+  .lane p{color:var(--muted);font-size:14.5px;line-height:1.55}
+
+  .mix{border-top:1px solid var(--line);margin-top:4px}
+  .mixrow{
+    display:grid;grid-template-columns:52px 1fr;gap:18px;align-items:baseline;
+    padding:18px 0;border-bottom:1px solid var(--line);
+  }
+  @media(min-width:760px){.mixrow{grid-template-columns:52px 200px 1fr;gap:24px}}
+  .mixrow .n{
+    font-family:'Masthic',Georgia,serif;font-size:30px;color:var(--limeade);line-height:1;
+  }
+  .mixrow .what{font-size:16.5px}
+  .mixrow .for{color:var(--muted);font-size:14.5px}
+
+  .cal{width:100%;border-collapse:collapse;font-size:15px}
+  .cal th{
+    text-align:left;font-family:'Futuru',system-ui,sans-serif;font-weight:500;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+    padding:0 14px 12px 0;border-bottom:1px solid var(--line);
+  }
+  .cal td{padding:15px 14px 15px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .cal td.wk{color:var(--muted);font-size:13.5px;white-space:nowrap}
+  .cal .ty{
+    display:inline-block;font-family:'Futuru',system-ui,sans-serif;
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+    padding:4px 9px 3px;border-radius:999px;margin-right:9px;
+    background:rgba(239,236,230,.09);color:var(--ivory);
+  }
+  .cal .ty.reach{background:var(--limeade);color:var(--obsidian)}
+  .cal .ty.frame{background:var(--ivory);color:var(--obsidian)}
+  .cal .sub2{color:var(--muted);font-size:13.5px;display:block;margin-top:5px}
+  .calwrap{overflow-x:auto}
+
+  .needs{display:grid;gap:12px;margin-top:4px}
+  .need{
+    background:var(--evergreen-deep);border-left:3px solid var(--limeade);
+    border-radius:var(--radius);padding:18px 20px;
+  }
+  .need b{font-weight:600;display:block;margin-bottom:5px;font-size:15.5px}
+  .need span{color:var(--muted);font-size:14px}
 </style>
 </head>
 <body>
@@ -307,6 +383,109 @@
     <h1>What are we posting?</h1>
     <p class="sub">Pick a topic and a finished post is waiting: the copy and the graphic that carries it. Some are written two ways, tap between them and tell us which one sounds like you.</p>
     <div class="topics" id="topicGrid"></div>
+    <button class="planlink" onclick="goPlan()"><span class="dot"></span>The plan: what to post, and when</button>
+  </section>
+
+  <section class="screen" id="s-plan">
+    <button class="back" onclick="goBack()">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Topics
+    </button>
+    <div class="eyebrow">Nirvana <span class="lime">&middot;</span> The plan</div>
+    <h1>How this runs</h1>
+    <p class="sub">Twice a week, Tuesday and Thursday, written two weeks ahead. Here is what goes out, in what order, and why each one is there.</p>
+
+    <div class="plansec">
+      <h2>What we're actually going for</h2>
+      <p class="planbig">Not followers. <em>More of the right founders starting a conversation with you.</em></p>
+      <p class="plannote">That needs two different kinds of post, and your own research is the reason why. Tactical posts get modest reactions but they are what a founder reads right before they reach out. Reach posts get 10 to 40x the reactions and grow the room you're talking to. Chase Dimond's tactical post drew 40 reactions and his relatable one drew 2,128 on the same day. One kind wins buyers, the other builds the audience you sell to. So we run both on purpose.</p>
+    </div>
+
+    <div class="plansec">
+      <h2>Three lanes, everything sits in one</h2>
+      <div class="lanes">
+        <div class="lane">
+          <span class="ln">Lane 01</span>
+          <h3>The leak</h3>
+          <p>The un-mapped lifecycle. The window between click and doorstep, the first 14 days, the cancel flow, the failed payments.</p>
+        </div>
+        <div class="lane">
+          <span class="ln">Lane 02</span>
+          <h3>The math</h3>
+          <p>Subscription economics in plain language. The three kinds of churn, LTV with margin in it, why the offer beats the price.</p>
+        </div>
+        <div class="lane">
+          <span class="ln">Lane 03</span>
+          <h3>The truth</h3>
+          <p>Your POV and your story. The part of the lifecycle nobody owns, the pivot, why most email advice is written for the sender.</p>
+        </div>
+      </div>
+      <p class="plannote">Three, not four or five. LinkedIn's 2026 ranking reads what you write and matches it to a reader's interests, so roughly 80% of posts staying inside three topics is what keeps you in front of the right people. Every post already written fits one of these.</p>
+    </div>
+
+    <div class="plansec">
+      <h2>Every ten posts</h2>
+      <div class="mix">
+        <div class="mixrow"><span class="n">5</span><span class="what">Tactical</span><span class="for">Long, specific, ends with something they can do this week. These are what a buyer reads.</span></div>
+        <div class="mixrow"><span class="n">2</span><span class="what">Reach</span><span class="for">Short, universal, one line per paragraph, ends on a question. This is the growth half.</span></div>
+        <div class="mixrow"><span class="n">2</span><span class="what">Framework</span><span class="for">A named idea you own, with a poster. Frameworks get saved and reshared more than anything else.</span></div>
+        <div class="mixrow"><span class="n">1</span><span class="what">Your story</span><span class="for">The pivot, the founder who cried about the newsletter, the clients you told to send less.</span></div>
+      </div>
+      <p class="plannote">No pitch posts for the first eight weeks. Give, give, give, then ask. We revisit at week eight.</p>
+    </div>
+
+    <div class="plansec">
+      <h2>The next eight weeks</h2>
+      <div class="calwrap">
+      <table class="cal">
+        <thead><tr><th>Week</th><th>Tuesday</th><th>Thursday</th></tr></thead>
+        <tbody>
+          <tr><td class="wk">1 &middot; Aug 11</td>
+            <td><span class="ty">Tactical</span>The leak<span class="sub2">Open on the strongest one. The cancels nobody chose.</span></td>
+            <td><span class="ty reach">Reach</span><span class="sub2">Short, no tactics. Something anyone running a business feels.</span></td></tr>
+          <tr><td class="wk">2 &middot; Aug 18</td>
+            <td><span class="ty frame">Framework</span>Named, with a poster<span class="sub2">Give the idea a name so people can repeat it without you.</span></td>
+            <td><span class="ty">Tactical</span>The math</td></tr>
+          <tr><td class="wk">3 &middot; Aug 25</td>
+            <td><span class="ty">Tactical</span>The leak</td>
+            <td><span class="ty">Your story</span><span class="sub2">Trust post. People buy from people.</span></td></tr>
+          <tr><td class="wk">4 &middot; Sep 1</td>
+            <td><span class="ty">Tactical</span>The math</td>
+            <td><span class="ty reach">Reach</span></td></tr>
+          <tr><td class="wk">5 &middot; Sep 8</td>
+            <td><span class="ty frame">Framework</span>Named, with a poster</td>
+            <td><span class="ty">Tactical</span>The leak</td></tr>
+          <tr><td class="wk">6 &middot; Sep 15</td>
+            <td><span class="ty">Tactical</span>The math</td>
+            <td><span class="ty reach">Reach</span></td></tr>
+          <tr><td class="wk">7 &middot; Sep 22</td>
+            <td><span class="ty">Tactical</span>The truth</td>
+            <td><span class="ty">Your story</span></td></tr>
+          <tr><td class="wk">8 &middot; Sep 29</td>
+            <td><span class="ty frame">Framework</span>Or a teardown, if we have one you'll stand behind</td>
+            <td><span class="ty reach">Reach</span><span class="sub2">Then we look at the numbers and adjust.</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="plannote">Sixteen posts. Never two of the same kind back to back. If Wednesday changes the direction, the shape stays and the topics move.</p>
+    </div>
+
+    <div class="plansec">
+      <h2>What we watch, and what we do about it</h2>
+      <p class="planbig">Four numbers. <em>Saves, real comments, profile visits, followers that week.</em></p>
+      <p class="plannote">Saves matter most right now, they are the signal LinkedIn weights hardest. Then the rule: any post that beats your average by 3x gets run again within 30 days from a different angle. That is what the five angles under every topic are for. A winner is a topic, not a post. Any kind of post that underperforms twice in a row loses its slot to whatever is working.</p>
+    </div>
+
+    <div class="plansec">
+      <h2>The three things only you can unlock</h2>
+      <div class="needs">
+        <div class="need"><b>Your real numbers</b><span>21 of the posts carry a green Check first bar. Those are the spots where a real figure from your own work replaces a careful general statement. Real numbers are the whole reason people believe the rest.</span></div>
+        <div class="need"><b>One teardown you'd stand behind</b><span>A client story, or a public brand you're happy to pull apart. Teardowns are the most shareable format in the whole category and we have zero, because we won't invent one.</span></div>
+        <div class="need"><b>The writer's brief Alex has</b><span>The twelve-file voice database. Everything here was built from the four pages you sent. That brief would sharpen all of it.</span></div>
+      </div>
+    </div>
+
+    <button class="planlink" onclick="goBack()" style="margin-top:52px"><span class="dot"></span>Show me the posts</button>
   </section>
 
   <section class="screen" id="s-post">
@@ -1497,6 +1676,11 @@ function pickVoice(n){ voice[angleId(curTopic,curAngle)] = n; saveVoice(); openP
 function clearVoice(){ delete voice[angleId(curTopic,curAngle)]; saveVoice(); openPost(curTopic, curAngle, curVer); }
 
 function showTopics(){ show('s-topics'); }
+function showPlan(){ show('s-plan'); }
+function goPlan(){
+  history.pushState({v:'plan'}, '', '#plan');
+  showPlan();
+}
 function goTopic(i){
   const j = pickFor(i);
   history.pushState({v:'post',t:i,a:j}, '', '#' + TOPICS[i].num + '-' + (j+1));
@@ -1509,6 +1693,7 @@ function goPost(i,j){
 function goBack(){ history.back(); }
 function applyState(s){
   if (!s || s.v === 'topics'){ showTopics(); return; }
+  if (s.v === 'plan'){ showPlan(); return; }
   if (s.v === 'post'){ openPost(s.t, s.a); }
 }
 window.addEventListener('popstate', e => applyState(e.state));

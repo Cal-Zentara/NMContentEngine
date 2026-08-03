@@ -1752,6 +1752,15 @@ const SCHEDULE = [
     note:"Already written short. Then we look at the numbers and adjust."}]}
 ];
 
+/* what each angle actually does, in words instead of a number */
+const ANGLE_MEANS = {
+  "Data drop":  "Leads with a number",
+  "Contrarian": "Disagrees with the crowd",
+  "Teardown":   "Pulls something apart",
+  "Framework":  "Lays out a method",
+  "Story":      "Tells a story"
+};
+
 function calClass(kind){
   if (kind === 'Short post') return 'ty reach';
   if (kind === 'Named idea') return 'ty frame';
@@ -1768,7 +1777,7 @@ function renderCal(){
           <button class="calslot" data-day="${n === 0 ? 'Tuesday' : 'Thursday'}" onclick="planOpen(${s.t},${s.a})">
             <span class="${calClass(s.kind)}">${s.kind}</span>
             <span class="slotname">${s.name}</span>
-            <span class="sub2">Topic ${t.num}, angle ${s.a+1} &middot; ${s.lane}</span>
+            <span class="sub2">${ANGLE_MEANS[a.type] || a.type} &middot; ${s.lane}</span>
             <span class="sub2 nt">${s.note}</span>
           </button>
         </td>`;

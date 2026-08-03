@@ -258,6 +258,8 @@
     font-family:'Futuru',system-ui,sans-serif;font-size:12.5px;
     color:var(--limeade);margin-top:12px;min-height:1px;
   }
+  .actions.top{margin-top:0;margin-bottom:20px}
+  .sendstate:empty{display:none}
 
   .alts{margin-top:44px;max-width:600px}
   .alts .lede{
@@ -319,13 +321,7 @@
       <div class="checkbar" id="checkBar"></div>
       <div class="switchnote" id="switchNote"></div>
       <div class="switch" id="verSwitch"></div>
-      <div class="card" id="card">
-        <div class="caption" id="capBody"></div>
-        <textarea id="capEdit" spellcheck="true"></textarea>
-        <div class="imgslot" id="imgSlot"></div>
-      </div>
-      <p class="editnote" id="editNote"></p>
-      <div class="actions">
+      <div class="actions top">
         <button class="copy" onclick="copyPost()">
           <span id="copyLabel">Copy caption</span>
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -334,6 +330,12 @@
         <span class="meta" id="postMeta"></span>
       </div>
       <p class="sendstate" id="sendState"></p>
+      <div class="card" id="card">
+        <div class="caption" id="capBody"></div>
+        <textarea id="capEdit" spellcheck="true"></textarea>
+        <div class="imgslot" id="imgSlot"></div>
+      </div>
+      <p class="editnote" id="editNote"></p>
     </div>
     <div class="alts" id="altList"></div>
   </section>

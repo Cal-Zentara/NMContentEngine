@@ -330,7 +330,7 @@
           <span id="copyLabel">Copy caption</span>
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
-        <button id="sendBtn" class="sendedit" onclick="exportFeedback()">Send my edit to Chris</button>
+        <button id="sendBtn" class="sendedit" onclick="exportFeedback()">Save and send edits to Chris</button>
         <span class="meta" id="postMeta"></span>
       </div>
       <p class="sendstate" id="sendState"></p>
@@ -1368,7 +1368,7 @@ function openPost(i, j, v){
   if (sBtn){
     sBtn.classList.toggle('on', isEdited);
     sBtn.disabled = false;
-    sBtn.textContent = 'Send my edit to Chris';
+    sBtn.textContent = 'Save and send edits to Chris';
   }
   const sState = document.getElementById('sendState');
   if (sState) sState.textContent = '';
@@ -1450,6 +1450,8 @@ function startEdit(){
   document.getElementById('card').classList.add('editing');
   const btn = document.querySelector('#capBody .inlineedit');
   if (btn){ btn.textContent = 'Save'; btn.classList.add('go'); }
+  const sBtn = document.getElementById('sendBtn');   /* offer it while she types */
+  if (sBtn){ sBtn.classList.add('on'); sBtn.disabled = false; sBtn.textContent = 'Save and send edits to Chris'; }
   ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
   ta.focus();
 }
@@ -1557,6 +1559,8 @@ ${text}`);
 }
 
 async function exportFeedback(auto){
+  /* the label promises a save, so honour it if she's still typing */
+  if (!auto && editing) saveEdit();
   const out = feedbackBody();
   if (!out.length){
     if (!auto) alert('Nothing to send yet. Edit a post first, then send.');

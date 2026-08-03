@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nirvana Content Engine</title>
+<style>
+  @font-face{
+    font-family:'Masthic';
+    src:url('fonts/Masthic.otf') format('opentype');
+    font-weight:400;font-display:swap;
+  }
+  @font-face{
+    font-family:'Futuru';
+    src:url('fonts/Futuru-VariableVF.ttf') format('truetype');
+    font-weight:300 700;font-display:swap;
+  }
+  :root{
+    --obsidian:#171717;
+    --evergreen:#262B22;
+    --evergreen-deep:#1E231B;
+    --ivory:#EFECE6;
+    --limeade:#A3FF3D;
+    --muted:#8A8F87;
+    --line:rgba(239,236,230,.12);
+    --radius:.5rem;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--obsidian);color:var(--ivory);
+    font-family:Inter,system-ui,sans-serif;font-weight:300;line-height:1.6;
+    min-height:100dvh;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:48px 24px 96px}
+  @media(min-width:768px){.wrap{padding:72px 48px 120px}}
+
+  .eyebrow{
+    font-family:'Futuru',system-ui,sans-serif;
+    font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--muted);font-weight:500;margin-bottom:20px;
+  }
+  .eyebrow .lime{color:var(--limeade)}
+  .eyebrow.post{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .anglePill{
+    background:var(--limeade);color:var(--obsidian);
+    padding:5px 12px 4px;border-radius:999px;
+    font-weight:800;letter-spacing:.16em;
+  }
+  .angleOf{color:var(--muted);letter-spacing:.2em}
+  h1{font-family:'Masthic',Georgia,serif;font-weight:400;letter-spacing:.01em;
+     font-size:clamp(34px,6vw,58px);line-height:1.05;margin-bottom:14px}
+  .sub{color:var(--muted);font-size:16px;max-width:46ch}
+  .back{
+    display:inline-flex;align-items:center;gap:8px;
+    color:var(--muted);font-size:13px;
+    font-family:'Futuru',system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+    margin-bottom:36px;cursor:pointer;background:none;border:none;transition:color .25s;
+  }
+  .back:hover{color:var(--ivory)}
+  .back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+  .screen{display:none}
+  .screen.on{display:block;animation:rise .5s cubic-bezier(.16,1,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  /* topics */
+  .topics{display:grid;grid-template-columns:1fr;gap:14px;margin-top:52px}
+  @media(min-width:768px){.topics{grid-template-columns:1fr 1fr;gap:18px}}
+  .topic{
+    background:var(--evergreen);border:1px solid transparent;border-radius:var(--radius);
+    padding:28px 26px 24px;cursor:pointer;text-align:left;color:var(--ivory);
+    font-family:inherit;transition:border-color .3s,transform .3s;
+    animation:rise .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i)*70ms);
+  }
+  .topic:hover{border-color:var(--limeade)}
+  .topic:active{transform:scale(.985)}
+  .topic .num{
+    font-family:'Futuru',system-ui,sans-serif;font-size:11px;letter-spacing:.22em;
+    color:var(--limeade);display:block;margin-bottom:14px;font-weight:500;
+  }
+  .topic h3{font-family:'Masthic',Georgia,serif;font-weight:400;font-size:24px;line-height:1.15;margin-bottom:8px}
+  .topic p{font-size:14px;color:var(--muted)}
+  .topic .count{
+    display:inline-block;margin-top:16px;font-size:11px;
+    font-family:'Futuru',system-ui,sans-serif;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted);
+  }
+
+  /* post */
+  .postwrap{margin-top:36px;max-width:600px}
+  .pick{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .badge{
+    font-family:'Futuru',system-ui,sans-serif;font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;font-weight:600;background:var(--limeade);color:var(--obsidian);
+    padding:6px 11px;border-radius:3px;
+  }
+  .why{font-size:13px;color:var(--muted)}
+
+  /* two-version switch */
+  .switch{display:flex;gap:0;margin-bottom:14px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .switch:empty{display:none}
+  .switch button{
+    flex:1;background:transparent;border:none;cursor:pointer;
+    font-family:'Futuru',system-ui,sans-serif;font-size:12px;font-weight:600;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    padding:15px 10px;transition:background .25s,color .25s;
+  }
+  .switch button + button{border-left:1px solid var(--line)}
+  .switch button:hover{color:var(--ivory)}
+  .switch button.on{background:var(--ivory);color:var(--obsidian)}
+  .switch button .tick{color:var(--limeade);margin-left:7px}
+  .switch button.on .tick{color:#3E7C1E}
+  .switch button b{display:block;font-size:12px;letter-spacing:.16em}
+  .switch button small{
+    display:block;margin-top:5px;font-size:10px;font-weight:500;
+    letter-spacing:.04em;text-transform:none;opacity:.62;
+  }
+  .checkbar{
+    display:flex;gap:12px;align-items:flex-start;
+    border:1px solid rgba(163,255,61,.4);border-left:4px solid var(--limeade);
+    border-radius:var(--radius);padding:15px 18px;margin-bottom:16px;
+    font-size:14px;line-height:1.55;color:var(--ivory);
+  }
+  .checkbar:empty{display:none}
+  .checkbar b{
+    font-family:'Futuru',system-ui,sans-serif;font-size:10px;font-weight:800;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--limeade);
+    white-space:nowrap;padding-top:3px;
+  }
+  .checkbar span{color:#B9B4AA}
+  .switchnote{
+    font-family:'Futuru',system-ui,sans-serif;font-size:12px;color:var(--muted);
+    line-height:1.5;margin-bottom:9px;
+  }
+  .switchnote:empty{display:none}
+  .switchnote b{color:var(--ivory);font-weight:600}
+
+  /* her verdict */
+  .verdict{display:flex;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+  .verdict:empty{display:none}
+  .verdict .q{font-size:14px;color:var(--muted)}
+  .verdict button{
+    background:transparent;border:1px solid var(--limeade);color:var(--limeade);
+    border-radius:var(--radius);cursor:pointer;
+    font-family:'Futuru',system-ui,sans-serif;font-size:12px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;
+    transition:background .25s,color .25s,transform .2s;
+  }
+  .verdict button:hover{background:var(--limeade);color:var(--obsidian)}
+  .verdict button:active{transform:scale(.97)}
+  .verdict .done{font-size:14px;color:var(--limeade);font-weight:400}
+
+  /* the LinkedIn-shaped card: caption on top, image below */
+  .card{background:var(--evergreen-deep);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .caption{padding:30px 28px;font-size:16.5px;line-height:1.7;position:relative;cursor:text}
+  .caption .inlineedit{
+    position:absolute;top:14px;right:14px;
+    background:none;border:1px solid var(--line);border-radius:3px;
+    font-family:'Futuru',system-ui,sans-serif;font-size:10px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+    padding:7px 11px;cursor:pointer;transition:color .2s,border-color .2s;
+  }
+  .caption:hover .inlineedit{color:var(--limeade);border-color:rgba(163,255,61,.5)}
+  @media(min-width:768px){.caption{padding:34px 34px}}
+  .caption p{margin-bottom:1em}
+  .caption p:last-child{margin-bottom:0}
+  .imgslot{
+    border-top:1px solid var(--line);background:#12160F;
+    padding:26px 28px;display:flex;gap:18px;align-items:flex-start;
+  }
+  .imgslot img{width:100%;border-radius:3px;display:block}
+  .imgslot .ph{
+    flex:1;border:1px dashed rgba(163,255,61,.35);border-radius:4px;
+    padding:20px 20px;font-size:14px;color:var(--muted);line-height:1.55;
+  }
+  .imgslot .ph b{
+    display:block;font-family:'Futuru',system-ui,sans-serif;font-size:10px;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--limeade);
+    margin-bottom:9px;font-weight:600;
+  }
+  .imgslot .madewrap{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+  .imgslot .dl{
+    display:inline-block;text-decoration:none;margin-top:0;
+  }
+  .imgslot .ph .lines{
+    display:block;font-family:'Futuru',system-ui,sans-serif;font-weight:800;
+    text-transform:uppercase;letter-spacing:-.01em;line-height:1.14;
+    font-size:19px;color:var(--ivory);
+  }
+  .imgslot .ph .style{
+    display:block;margin-top:14px;padding-top:12px;
+    border-top:1px solid rgba(163,255,61,.18);
+    font-size:12px;color:#5f6b52;line-height:1.5;
+  }
+  .imgslot .ph .imgbtn{
+    margin-top:14px;background:none;border:1px solid rgba(163,255,61,.45);
+    color:var(--limeade);font-family:'Futuru',system-ui,sans-serif;
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;
+    padding:9px 14px;border-radius:3px;cursor:pointer;
+  }
+  .imgslot .ph .imgbtn:hover{background:rgba(163,255,61,.1)}
+
+  .actions{display:flex;align-items:center;gap:18px;margin-top:24px;flex-wrap:wrap}
+  .copy{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--limeade);color:var(--obsidian);border:none;border-radius:var(--radius);
+    font-family:'Futuru',system-ui,sans-serif;font-weight:600;font-size:13px;
+    letter-spacing:.14em;text-transform:uppercase;padding:16px 26px;cursor:pointer;
+    transition:transform .2s;
+  }
+  .copy:hover{transform:translateY(-1px)}
+  .copy:active{transform:scale(.97)}
+  .copy svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+  .meta{font-size:12.5px;color:var(--muted)}
+  .meta .edited{color:var(--limeade)}
+  .ghost{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    border-radius:var(--radius);cursor:pointer;
+    font-family:'Futuru',system-ui,sans-serif;font-size:12px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;padding:15px 20px;
+    transition:border-color .25s,color .25s,transform .2s;
+  }
+  .ghost:hover{border-color:var(--ivory);color:var(--ivory)}
+  .ghost:active{transform:scale(.97)}
+  .ghost.go{border-color:var(--limeade);color:var(--limeade)}
+  .ghost.go:hover{background:var(--limeade);color:var(--obsidian)}
+
+  /* edit mode */
+  #capEdit{
+    display:none;width:100%;background:transparent;border:none;outline:none;resize:none;
+    color:var(--ivory);font-family:Inter,system-ui,sans-serif;font-weight:300;
+    font-size:16.5px;line-height:1.7;padding:30px 28px;min-height:260px;
+  }
+  @media(min-width:768px){#capEdit{padding:34px}}
+  .card.editing{border-color:var(--limeade)}
+  .card.editing #capBody{display:none}
+  .card.editing #capEdit{display:block}
+  .editnote{
+    margin-top:14px;font-size:13px;color:var(--muted);max-width:60ch;
+  }
+  .editnote:empty{display:none}
+  .editnote .lime{color:var(--limeade)}
+
+  /* alternates */
+  .alts{margin-top:44px;max-width:600px}
+  .alts .lede{
+    font-family:'Futuru',system-ui,sans-serif;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:16px;
+  }
+  .angle{
+    background:transparent;border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 22px;cursor:pointer;text-align:left;color:var(--ivory);
+    font-family:inherit;width:100%;display:block;margin-bottom:12px;
+    transition:border-color .3s,background .3s,transform .3s;
+    animation:rise .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i)*80ms);
+  }
+  .angle:hover{border-color:var(--limeade);background:var(--evergreen)}
+  .angle:active{transform:scale(.99)}
+  .angle .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+  .tag{
+    font-family:'Futuru',system-ui,sans-serif;font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;font-weight:500;padding:5px 10px;border-radius:3px;
+  }
+  .tag.type{background:rgba(239,236,230,.08);color:var(--ivory)}
+  .tag.goal{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .tag.used{background:var(--limeade);color:var(--obsidian)}
+  .angle .hook{font-size:15px;line-height:1.5;color:var(--muted);max-width:62ch}
+  .angle:hover .hook{color:var(--ivory)}
+
+  footer{
+    margin-top:90px;padding-top:26px;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;
+    gap:14px;flex-wrap:wrap;
+  }
+  footer button{
+    background:none;border:none;color:var(--muted);cursor:pointer;
+    font-size:12.5px;font-family:inherit;text-decoration:underline;
+  }
+  footer button:hover{color:var(--ivory)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="screen on" id="s-topics">
+    <div class="eyebrow">Nirvana <span class="lime">&middot;</span> Content Engine</div>
+    <h1>What are we posting?</h1>
+    <p class="sub">Pick a topic and a finished post is waiting: the copy and the graphic that carries it. Some are written two ways, tap between them and tell us which one sounds like you.</p>
+    <div class="topics" id="topicGrid"></div>
+  </section>
+
+  <section class="screen" id="s-post">
+    <button class="back" onclick="goBack()">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Topics
+    </button>
+    <div class="eyebrow" id="postEyebrow"></div>
+    <h1 id="postTitle"></h1>
+    <div class="postwrap">
+      <div class="pick" id="pickRow"></div>
+      <div class="checkbar" id="checkBar"></div>
+      <div class="switchnote" id="switchNote"></div>
+      <div class="switch" id="verSwitch"></div>
+      <div class="card" id="card">
+        <div class="caption" id="capBody"></div>
+        <textarea id="capEdit" spellcheck="true"></textarea>
+        <div class="imgslot" id="imgSlot"></div>
+      </div>
+      <p class="editnote" id="editNote"></p>
+      <div class="actions">
+        <button class="copy" onclick="copyPost()">
+          <span id="copyLabel">Copy caption</span>
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button class="ghost" id="editBtn" onclick="startEdit()">Edit</button>
+        <span class="meta" id="postMeta"></span>
+      </div>
+    </div>
+    <div class="alts" id="altList"></div>
+  </section>
+
+  <footer>
+    <div>Drafts by the Nirvana Content Engine &middot; nothing publishes without you</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap">
+      <button id="sendBtn" onclick="exportFeedback()">Send my edits to Chris</button>
+      <button onclick="resetUsed()">Reset posted marks</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* Chase-style: the image IS the post. Caption is 2-4 short lines. */
+const TOPICS = [
+{
+ num:"01", lead:0, title:"The cancels nobody chose",
+ desc:"Customers who disappeared without ever hitting cancel.",
+ angles:[
+  {type:"Data drop", goal:"Builds authority", why:"one number, impossible to argue with",
+   text:`Most of your churn isn't churn.
+
+It's expired credit cards.
+
+2 to 4 in 10 of the customers you "lost" never clicked cancel. Their card expired or the charge declined, and the retry never worked.
+
+Fix the retries and add a card updater before you touch anything else. You already paid to acquire these people and they never decided to leave, so winning them back costs you nothing but the fix.`,
+   img:`Ten cardboard boxes in a row. Six solid, four drawn as faded dotted outlines. Below them a cracked credit card marked EXP with an arrow pointing at the missing four.`},
+
+  {type:"Contrarian", goal:"Grows the audience", why:"names a framework she can own",
+   text:`Churn has three doors.
+
+Most brands only guard one.
+
+Voluntary: they chose to leave.
+Involuntary: the card failed and nobody chose anything.
+Passive: the product arrives faster than they use it.
+
+Same number on your dashboard. Three completely different repairs.
+
+Split one month of cancels into those three buckets. Whichever is biggest tells you which team owns the fix.`,
+   img:`Three simple doors drawn side by side, labeled "chose to leave", "card failed", "too much product". One door has a guard standing at it. The other two are wide open.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"a rewrite they can copy today",
+   text:`Your failed payment email reads like a parking ticket.
+
+It should read like a favor.
+
+"Your payment has failed" is an accusation. "Looks like your card slipped, update it in ten seconds" is a helping hand.
+
+Same ask. Very different recovery rate.
+
+Go read your own failed payment email out loud. If it sounds like a fine, rewrite it as a favor.`,
+   img:`Two emails side by side. Left one stamped like a parking ticket, cold and official. Right one drawn as a friendly handwritten note. Big arrow from left to right.`},
+
+  {type:"Framework", goal:"Builds authority", why:"three fixes ranked by effort",
+   text:`Three fixes for failed payments, in order of effort.
+
+1. Retry on payday instead of the next morning.
+2. Write the email like a favor, not a fine.
+3. Ask for the new card before the old one expires.
+
+The third one is the only one that stops it happening.
+
+Start there. A card updater runs once and quietly removes the problem instead of chasing it every month.`,
+   img:`A three rung ladder. Bottom rung labeled "retry later", middle rung "email like a human", top rung "update the card early". The top rung drawn faded and unused, cobwebs on it.`},
+
+  {type:"Story", goal:"Grows the audience", why:"puts a human in the number",
+   text:`Some of your customers never decided to leave.
+
+They just got a new card.
+
+Nobody sits down and chooses that. The old number stops working, the charge declines, and a subscription they were happy with quietly stops.
+
+Your dashboard files it under churn. It belongs under billing.
+
+Ask your billing platform how many of last month's cancels were declines. That number surprises most founders.`,
+   img:`A wallet with a fresh replacement card in it, the old one cut in half beside it, and a subscription box in the background going unopened.`}
+]},
+{
+ num:"02", lead:1, title:"The cancel button",
+ desc:"What happens in the last sixty seconds decides who stays.",
+ angles:[
+  {type:"Contrarian", goal:"Builds authority", why:"kills the reflex everyone has",
+   text:`The panic discount doesn't save the customer.
+
+It saves the month.
+
+Then it teaches your best people that the exit is where the deals live.
+
+Most subscribers don't leave over price. A cheaper version of something they stopped using still cancels next month.
+
+Ask what changed before you offer anything. Most answers are about fit, not price.`,
+   img:`A bucket with a coupon taped over a hole in the side, water still pouring out of the gap around it.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"she tested six brands herself",
+   text:`I tried to cancel six subscriptions last week.
+
+Five threw a coupon at me before asking a single question.
+
+The sixth asked one thing: is this too much product, or the wrong product?
+
+I said too much. It moved me to every eight weeks. I'm still a customer.
+
+Ask the question before you offer the discount. The answer is usually a frequency change, not a price change.`,
+   img:`Six phone screens in a grid. Five show a big discount badge. The sixth shows a simple question with two options. The sixth one is circled.`},
+
+  {type:"Framework", goal:"Grows the audience", why:"three steps anyone can implement",
+   text:`A cancel flow has three jobs, in order.
+
+Ask why they're leaving. Answer that exact reason. Save the discount for last.
+
+Most brands skip straight to step three and wonder why the save never sticks.
+
+The save isn't in the coupon. It's in the question.
+
+Move the discount to the last screen and put a question on the first. Same flow, different outcome.`,
+   img:`Three numbered steps drawn as a staircase: ASK, ANSWER, then a small discount tag at the top. Most brands jump straight to step 3, drawn as a dotted leap over the first two.`},
+
+  {type:"Story", goal:"Grows the audience", why:"reframes the exit as a gift",
+   text:`The cancel screen is the most honest conversation you'll ever have with a customer.
+
+They've already decided. There's nothing left to protect.
+
+Ask and they'll tell you the truth: too much, too expensive, didn't work, forgot why I signed up.
+
+Most brands use that moment to shout a discount over the top of it.
+
+Put one open question on that screen this week and read what comes back.`,
+   img:`Two people at a doorway, one halfway out and mid sentence. The other holding up a giant discount sign that covers their own face and ears.`},
+
+  {type:"Teardown", goal:"Builds authority", why:"a ten second audit of their own flow",
+   text:`Open your own cancel flow and count two things.
+
+How many clicks it takes to leave. How many questions you ask on the way out.
+
+Most brands are two clicks and zero questions.
+
+Every one of those exits was carrying the reason you're losing everyone else, and you traded it for a 10% coupon.
+
+Add one question before the coupon, even a dropdown. You'll learn more in a month than a year of surveys.`,
+   img:`A turnstile with two arrows and no signage, people walking straight through. Beside it a clipboard on the floor, blank, still in its wrapper.`}
+]},
+{
+ num:"03", lead:0, title:"After the first box",
+ desc:"The two weeks between buying and believing.",
+ angles:[
+  {type:"Teardown", goal:"Brings buyers", why:"an audit they can run on themselves today",
+   text:`Here's the first thirty days at most subscription brands.
+
+A receipt. Then the box, and silence. Then a promo for something they haven't opened yet. Then a second charge, by which point they've forgotten why they signed up.
+
+The emails are clean. The open rates are fine. The subscribers leave anyway.
+
+Subscribe to your own brand with your own card and read what lands in the first thirty days.`,
+   img:`A calendar timeline with four marked days. Day 0 a receipt, Day 3 a box with a silence symbol, Day 9 a discount tag, Day 30 a charge with a question mark. The gaps between are shaded empty.`},
+
+  {type:"Framework", goal:"Builds authority", why:"one free message that saves renewals",
+   text:`The first ten days decide whether they stay ten months.
+
+Week one is when the habit forms. If they use the thing and feel it working, the next charge is a receipt for something they already value.
+
+If they don't, it's a bill for a box in the cupboard.
+
+Send one message the day it ships: how to use it, and when they'll see a result. That's it. That's the fix.`,
+   img:`Two lines on the same chart. One rises early and stays flat and high. The other dips after week one and keeps falling. The split point is marked "day 10".`},
+
+  {type:"Story", goal:"Grows the audience", why:"short lines, biggest reach",
+   text:`Everyone funds the ad.
+
+Nobody owns the two weeks after it.
+
+The customer already paid. The box hasn't landed. And they're quietly wondering if they made a mistake.
+
+You already paid to win them. Keeping them costs one email. That's the cheapest growth in the business and nobody is watching it.
+
+Pick one message to send between the order and the box landing. Start there.`,
+   img:`A pile of money flowing into a megaphone on the left. On the right, an empty chair beside a doorstep with a lone package. The right side is blank and unattended.`},
+
+  {type:"Contrarian", goal:"Builds authority", why:"kills the idea that onboarding is an email",
+   text:`Onboarding isn't a welcome email.
+
+It's the first time the product has to prove the ad was telling the truth.
+
+Everyone spends the budget getting the yes, then hands the customer a receipt and hopes.
+
+The second charge doesn't get decided at the second charge. It gets decided in week one.
+
+Write down what a good first week looks like for your product, then check whether a single email says it.`,
+   img:`A poster on a wall showing a perfect glowing product. Below it, the real box sitting unopened on a kitchen counter. A dotted line between them with a question mark.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"one sentence they can add tomorrow",
+   text:`The renewal notice is the most ignored email in subscription ecommerce.
+
+"Your order ships in 3 days." That's the whole thing.
+
+Nobody rereads a shipping notice. But one line reminding them what last month's box actually did for them turns a charge back into a choice they're glad they made.
+
+Same email. One extra sentence.
+
+Add a line to your renewal notice naming what last month's delivery actually did for them.`,
+   img:`A plain shipping notice email, grey and forgettable. One handwritten sentence added in the middle in bright ink, circled.`}
+]},
+{
+ num:"04", lead:0, title:"The first email",
+ desc:"Your welcome flow is working hard. Nobody checked at what.",
+ angles:[
+  {type:"Teardown", goal:"Brings buyers", why:"the number that makes them check theirs",
+   text:`I opened the welcome flow of a brand doing $8M a year.
+
+Built in 2021. Never touched since.
+
+Not one mention of the subscription. Their current bestseller wasn't in there at all.
+
+The first thing every new customer reads was written by a company that no longer exists.
+
+Open yours and check the last edit date. That's the whole audit.`,
+   img:`An envelope covered in cobwebs and dust with a date stamp reading 2021. A tiny "10% OFF" tag hanging off it, faded.`},
+
+  {type:"Framework", goal:"Builds authority", why:"the five-email checklist",
+   text:`A store only needs five emails before it needs a sixth.
+
+The hello. The one that follows an abandoned cart. The one that follows a browse. The one after the box lands. The one that wins them back.
+
+Written once. Running every day. That's the whole machine.
+
+Count yours. Browse abandonment and win-back are the two most often missing, because they're the only two nobody notices are gone.`,
+   img:`Five numbered envelopes in a row, each labeled: hello, left the cart, looked but didn't buy, after the box, come back. Two of them drawn as empty dotted outlines.`},
+
+  {type:"Story", goal:"Grows the audience", why:"a picture anyone understands",
+   text:`Your welcome email is the front door.
+
+Most brands answer it wearing a sale sign.
+
+The ones that work have no banner and no discount badge. Just a note that reads like a person wrote it, from a real name, that you can reply to.
+
+That's the dinner party version. You don't greet a guest by shouting your prices at them.
+
+Write yours as one person to another, and let people reply to it.`,
+   img:`Two front doors. The left one plastered with a giant SALE sign and neon starbursts. The right one plain with a small handwritten note pinned to it. The right door is open.`},
+
+  {type:"Contrarian", goal:"Builds authority", why:"argues against the one thing everyone does",
+   text:`Your welcome email shouldn't sell anything.
+
+It has one job: make the person feel like they picked right.
+
+Either the sale already happened, or it hasn't and a coupon won't fix that. What decides the next twelve months is whether they think this brand is run by people who care.
+
+Sell later. Land the yes first.
+
+Take the discount out of your first email for a month and see whether anything actually drops.`,
+   img:`A new customer holding a small note that reads "you picked right", standing calmly. Behind them, a wall of discount banners falling over unnoticed.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"three questions that expose it in a minute",
+   text:`Three questions for your welcome flow, right now.
+
+Does it mention the subscription? Is your current bestseller in it? Does a repeat buyer get a different version?
+
+Three no's is the most common answer I get.
+
+That flow is the first thing every new customer reads and the last thing anyone edits.
+
+Fixing it is an afternoon of work, and it's the only email every single new customer is guaranteed to read.`,
+   img:`A checklist with three boxes, all three ticked with a red X instead of a check. Below it, an envelope with a thick layer of dust.`}
+]},
+{
+ num:"05", lead:0, title:"Emails that run themselves",
+ desc:"The difference between blasting and building.",
+ angles:[
+  {type:"Data drop", goal:"Builds authority", why:"the stat that reframes their whole setup",
+   text:`5% of the emails you send make 41% of your email revenue.
+
+It's not the newsletter.
+
+It's the automatic ones. The hello, the abandoned cart, the after-the-box note. The emails that fire on their own while you sleep.
+
+Everyone pours the effort into the campaigns. The 5% runs unsupervised.
+
+Before you plan another campaign, open your flows and read them like a customer.`,
+   img:`Two bars side by side. A tiny 5% bar next to a huge 41% bar. Above the small one, a robot working. Above the big one, an empty office chair.`},
+
+  {type:"Contrarian", goal:"Grows the audience", why:"argues against the reflex",
+   text:`"Send more emails" is not a retention strategy.
+
+It's a deliverability problem waiting to happen.
+
+The people who were going to buy, buy. Everyone else stops opening, and once enough of them stop, the inbox starts filing you under promotions and spam.
+
+Fewer emails to the right people beats more emails to everyone.
+
+Cut your worst performing send for a month and watch what happens to opens on everything else.`,
+   img:`A bank account passbook with a long column of withdrawals and one small deposit. Balance at the bottom circled in red.`},
+
+  {type:"Story", goal:"Brings buyers", why:"the diagnosis story",
+   text:`A brand hired me to fix their subject lines.
+
+The subject lines were fine.
+
+Repeat buyers were getting the beginner pitch. New subscribers were being sold products they'd never heard of. The one thing people kept reordering had no email at all.
+
+You can repaint a door all you like. It's still locked.
+
+Before you rewrite a subject line, check who's receiving it and what they've already bought.`,
+   img:`Someone carefully painting a beautiful front door that has a large padlock on it. A small crowd waits outside, unable to get in.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"rewrites the most copied email in ecommerce",
+   text:`The abandoned cart email everyone copies is three lines and a discount.
+
+You forgot something. Here's 10% off. Link.
+
+It answers a question the customer never asked. They didn't leave over price, they left over doubt. Will it fit. When does it arrive. Can I send it back.
+
+Answer the doubt and you don't need the 10%.
+
+Ask support for the three questions people ask most before buying, then answer those in the cart email.`,
+   img:`A shopping cart with three worry bubbles above it reading will it fit, when does it come, can I return it. A discount tag being handed over that matches none of them.`},
+
+  {type:"Framework", goal:"Builds authority", why:"gives every email one job",
+   text:`Every automated email answers one question.
+
+Hello: who are you.
+Abandoned cart: should I trust you.
+After the box: did I do this right.
+Win-back: is it worth coming back.
+
+Write the question each flow answers at the top of the doc. The ones you can't fill in are the ones to fix first.`,
+   img:`Four envelopes in a row, each with a different question mark drawn on it, each a different size. A fifth envelope at the end is blank and greyed out.`}
+]},
+{
+ num:"06", lead:0, title:"The coupon habit",
+ desc:"Discounts that answer nothing cost the most.",
+ angles:[
+  {type:"Data drop", goal:"Builds authority", why:"a number they can run on themselves",
+   text:`Repeat customers are 21% of your buyers and 44% of your revenue.
+
+Are you emailing them like it?
+
+Most brands send them the same welcome coupon a first-time visitor gets, discounting the people who were already coming back.
+
+Split the flow by one thing: have they bought before. That's an afternoon of work.`,
+   img:`Two bars side by side, a small 21% and a large 44%, with the same coupon stuck on both.`},
+
+  {type:"Contrarian", goal:"Grows the audience", why:"reframes the most-copied email in ecommerce",
+   text:`Your abandoned cart discount trained your customers to abandon carts.
+
+Leave the cart. Wait an hour. The price drops.
+
+You didn't build a recovery email. You built a rewards program for walking away.
+
+Most carts aren't abandoned over price. They're abandoned over doubt, and a coupon can't answer doubt.
+
+Swap the discount for the three answers people actually need, then compare recovery over a month.`,
+   img:`A shopping cart left in the middle of an aisle with a dog treat sitting in it. A hand offering the treat from off-frame, and a customer walking away smiling.`},
+
+  {type:"Story", goal:"Brings buyers", why:"connects acquisition to retention",
+   text:`A customer you bought with 40% off usually leaves the way they came in.
+
+Month one looks great. Signups up, cost per subscriber down.
+
+Month two the product costs what it actually costs, and they never agreed to that price.
+
+The dashboard calls it a retention problem. It was an acquisition decision coming due.
+
+Check what your discounted cohort looks like at month three before you scale that offer again.`,
+   img:`A revolving door with a big 40% OFF sign above it. People streaming in one side and straight out the other, in one continuous loop.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"the fix is one condition and an afternoon",
+   text:`Split your welcome flow by one thing: have they bought before.
+
+New person gets the offer. Repeat buyer gets the thing they were already coming back for.
+
+One condition. One afternoon. And you stop paying people to do what they were doing anyway.
+
+It's one condition in the flow builder, not a rebuild, and it protects margin on every repeat order from then on.`,
+   img:`A single path splitting into two with a simple signpost in the middle reading "bought before?". Left path has a coupon on it, right path has a product.`},
+
+  {type:"Framework", goal:"Builds authority", why:"one question before every discount",
+   text:`Before you send a discount, answer one question. What is this coupon for?
+
+To win a customer you don't have.
+To thank one you do.
+To clear stock you're sitting on.
+
+If the answer is "it's what we always send," it isn't a discount. It's a habit with a price tag.`,
+   img:`Three labeled jars: WIN, THANK, CLEAR. Beside them a fourth jar with no label, overflowing with coupons, sitting on a stack of receipts.`}
+]},
+{
+ num:"07", lead:1, title:"Reading your numbers",
+ desc:"The dashboard says one thing. The business says another.",
+ angles:[
+  {type:"Data drop", goal:"Builds authority", why:"lets them self-diagnose in ten seconds",
+   text:`A "bad" cancel rate for one brand is a great one for another.
+
+Products people use up, coffee, vitamins, skincare: usually 5 to 8% a month.
+
+Curated surprise boxes: 10 to 15%. Novelty fades, that's the deal.
+
+Before you panic about your number, check which category you're actually in. Most brands are comparing themselves to the wrong one.`,
+   img:`Two thermometers side by side. One labeled refill products with a healthy zone shaded 5 to 8. One labeled subscription boxes shaded 10 to 15. A single arrow asking "which one are you?"`},
+
+  {type:"Framework", goal:"Grows the audience", why:"the whole business on a sticky note",
+   text:`LTV isn't a number your analytics tool hands you.
+
+It's one line of math you should know by heart.
+
+Revenue times your gross margin, divided by your churn rate. That's it.
+
+Most brands quote a lifetime value that ignores margin entirely, then wonder why the profit never shows up.
+
+Run yours once with margin in it. It's usually a very different number to the one on the deck.`,
+   img:`A sticky note with the formula written by hand: revenue x gross margin, divided by churn. A dashboard behind it, out of focus.`},
+
+  {type:"Contrarian", goal:"Brings buyers", why:"a lever most brands never pull",
+   text:`Monthly billing feels customer friendly.
+
+It's often the reason they churn.
+
+Annual prepay retains about 2.5 times better than monthly, because monthly asks them to say yes again twelve times a year and annual asks once.
+
+Offer it as a real reward to your happiest subscribers. Never as a sneaky default.`,
+   img:`Twelve small checkboxes in a row, several of them unticked, next to a single large checkbox that is ticked once and done.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"turns one useless number into three jobs",
+   text:`Your churn number is three numbers wearing one coat.
+
+Chose to leave. Card failed. Paused and never came back.
+
+Split them for one month and the fix picks itself. Card failed is a billing job. Chose to leave is a product job. Paused is an email job.
+
+Tag every cancel for one month with which of the three it was. That single month of data usually redirects the whole roadmap.`,
+   img:`A single large coat hanging on a hook. Under it, three pairs of feet sticking out, each labeled differently.`},
+
+  {type:"Story", goal:"Grows the audience", why:"the dashboard lie in one scene",
+   text:`A founder told me his retention was fine.
+
+His dashboard agreed with him.
+
+It was counting everyone who hadn't cancelled, including the people whose cards died four months ago and were never charged again.
+
+They weren't retained. They were just still on the list.
+
+Count active paying subscribers, not people who haven't cancelled. Those are two different numbers.`,
+   img:`A stadium of seats seen from a stage, mostly filled with coats draped over empty chairs. A counter above reads a big healthy attendance number.`}
+]},
+{
+ num:"08", lead:0, title:"Founder truth",
+ desc:"The opinions underneath everything Nirvana does.",
+ angles:[
+  {type:"Story", goal:"Grows the audience", why:"the counter-intuitive one, biggest reach",
+   text:`I've told three clients this year to email less.
+
+Two of them made more money.
+
+Nobody hires an email person to hear "send less." But sending more to a list that has stopped opening is how you end up in the promotions tab for good.
+
+Sending less isn't doing less. It's respecting the reader enough that your emails stay welcome.
+
+Cut one send a week for a month and watch your revenue per email, not your revenue per week.`,
+   img:`A worn dirt road with deep tire ruts and a faded sign reading "the list". Beside it, a quieter path with grass growing back.`},
+
+  {type:"Contrarian", goal:"Builds authority", why:"exposes how the dashboard lies",
+   text:`Your email revenue number counts sales that would have happened anyway.
+
+Your best customers buy every month regardless. They click a promo on the way through, and the dashboard stamps it: email did this.
+
+Email did nothing. They were already coming.
+
+The real question isn't how much revenue email touched. It's how much wouldn't exist without it.
+
+Hold one segment out of a promo for a month. The gap between them is the only honest number you'll get.`,
+   img:`A dashboard showing a big green revenue number, with a tiny asterisk. The footnote at the bottom reads "includes people who were already buying."`},
+
+  {type:"Story", goal:"Brings buyers", why:"the origin story of Nirvana",
+   text:`After years inside DTC email, only a handful of things ever actually moved retention.
+
+Not the tactics everyone argues about.
+
+The offer matched the way people actually use the product. The first ten days taught them how. The failed payments got retried properly. The people who kept buying got treated differently to strangers.
+
+That's most of it. The rest is decoration.
+
+Pick whichever of those four is weakest at your brand and fix only that one this quarter.`,
+   img:`A relay race with three runners each holding a baton and smiling. On the ground between them, the batons that were dropped in the handoffs, unnoticed.`},
+
+  {type:"Framework", goal:"Builds authority", why:"how she actually starts every audit",
+   text:`I ask three questions before I look at a single email.
+
+What did they buy it for. When do they feel it working. What happens the day they stop feeling it.
+
+Every retention fix I've ever made lives in the answer to one of those.
+
+The email is never the problem. It's just where the problem shows up.
+
+Answer those three about your own product before you touch a single flow.`,
+   img:`A doctor's notepad with three handwritten questions on it, and a laptop pushed to the side of the desk, closed.`},
+
+  {type:"Contrarian", goal:"Grows the audience", why:"names why it never gets fixed",
+   text:`Retention is not a department.
+
+It's what's left over when everything else is done well.
+
+The email person can't fix a product that arrives too often. The ops person can't fix a promise the ad made.
+
+That's why it's nobody's fault and nobody's job, and why it's always the last thing anyone fixes.
+
+Give the space between the ad and the second charge one owner. Even part time.`,
+   img:`An office floor plan with labeled desks: ads, email, ops, support. In the middle, an unlabeled empty space with no desk in it.`}
+]},
+{
+ num:"09", lead:0, title:"What the numbers hide",
+ desc:"The metrics everyone quotes, and the ones that pay the bills.",
+ angles:[
+  {type:"Framework", goal:"Builds authority", why:"demystifies the chart founders avoid",
+   text:`The scariest chart in a subscription business is the cohort retention curve.
+
+Here's how to read it without flinching.
+
+Take everyone who joined in one month and track what percent are still paying each month after. A healthy curve drops fast at first, then flattens. That flat part is your real business.
+
+If it never flattens, you don't have a subscription. You have a slow-motion one-time purchase.
+
+Pull one cohort from a year ago and find the month it stopped dropping. That's your real retention.`,
+   img:`Two curves on the same chart. One drops then flattens into a long steady line. The other keeps sliding to zero.`},
+
+  {type:"Contrarian", goal:"Builds authority", why:"her sharpest disagreement with the category",
+   text:`Lowering your price won't fix churn.
+
+85% of the time, it's the offer.
+
+Wrong size, wrong frequency, wrong product for the way they actually live. A cheaper version of something that doesn't fit still doesn't fit.
+
+Before you discount, ask the people who left what would have made them stay. It's almost never "it was cheaper somewhere else."`,
+   img:`A price tag being cut in half with scissors while the product beside it stays exactly the same size.`},
+
+  {type:"Data drop", goal:"Grows the audience", why:"the profitability lens most email advice skips",
+   text:`Revenue from email is a vanity number.
+
+Margin is the real one.
+
+A big revenue number on a thin margin product can lose to a smaller one on a healthy margin. Nobody quotes that in a case study.
+
+Look at what's left after cost of goods, and at what a customer is worth against what they cost to get. Three to one is the benchmark worth defending, because anything closer than that and growth is eating the profit it's supposed to make.`,
+   img:`Two revenue bars, the taller one shaded almost entirely dark to show cost, the shorter one mostly clear.`},
+
+  {type:"Contrarian", goal:"Grows the audience", why:"nuances the cliché everyone repeats",
+   text:`"Retention is cheaper than acquisition" is true.
+
+And it's making people lazy.
+
+Cheaper isn't free. Set-and-forget flows quietly rot: the bestseller changes, the offer changes, the audience changes, and the emails don't.
+
+Put one date in the calendar every quarter to reread your flows as a customer. That's the whole practice.`,
+   img:`A machine labeled "flows" running unattended in an empty room, dust gathering on it, a light still blinking.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"proves the fix isn't building more",
+   text:`We didn't add a single new flow.
+
+Revenue from email still went up.
+
+We pruned the sends nobody opened, fixed the timing on the ones that mattered, and split the list so repeat buyers stopped getting the beginner pitch.
+
+More flows is the expensive answer. Better flows is usually the right one.
+
+Before you build a sixth flow, reread the five you have as a customer and fix the worst one.`,
+   img:`A pruned tree beside an overgrown one, the pruned one carrying visibly more fruit.`}
+]},
+{
+ num:"10", lead:0, title:"Emails people actually want",
+ desc:"Written for the person receiving it, not the person sending it.",
+ angles:[
+  {type:"Contrarian", goal:"Grows the audience", why:"her manifesto, the anchor post",
+   text:`Most email advice is written for the sender.
+
+Almost none of it is written for the person receiving it.
+
+Send more. Segment harder. Squeeze the flow. Nowhere in that is the question of whether anyone wanted the email in the first place.
+
+Chubbies, the shorts brand, sends a Friday email called the Weekender. Jokes and stories about the weekend. Barely any product in it.
+
+People open it because it's fun to read, so the brand stays in their head without ever having to sell.
+
+Write the one you'd be glad to get. That's not the soft option, it's the only one that keeps working.`,
+   img:`Two desks facing each other. One buried in dashboards and charts, the other holding a single opened letter.`},
+
+  {type:"Story", goal:"Grows the audience", why:"proof that not selling can be the strategy",
+   text:`The best retention email I've seen this year didn't sell anything.
+
+No offer. No product grid. No urgency.
+
+It was just genuinely good to read, and it arrived often enough that people started looking for it.
+
+An email people are pleased to see is a retention asset. It just doesn't show up in this week's attribution.
+
+Send one this quarter with nothing to buy in it and watch your reply rate.`,
+   img:`An inbox where every message is grey except one, which is being opened.`},
+
+  {type:"Framework", goal:"Builds authority", why:"reframes the most wasted email in ecommerce",
+   text:`A good post-purchase email answers a question the customer hasn't asked yet.
+
+Not "here's 20% off your next order."
+
+Did I choose right. How do I use this. When will I notice something. What happens next month.
+
+Put those four questions in order and check which of your post-purchase emails answers any of them. Usually it's none.`,
+   img:`Four envelopes in a row, each with a different question written on it, and a small discount tag lying discarded beside them.`},
+
+  {type:"Teardown", goal:"Brings buyers", why:"the smallest change with the biggest payoff",
+   text:`One line added to a cancel flow doubled a client's save rate.
+
+Not a bigger discount. A pause option.
+
+Some people don't want to leave, they want to stop for a month. If the only button you give them is cancel, that's the button they press.
+
+Add pause before you add discount. It costs you nothing and it keeps the relationship alive.`,
+   img:`A cancel button and a pause button side by side, the pause one worn from use.`},
+
+  {type:"Story", goal:"Builds authority", why:"truth with love, in full",
+   text:`A founder cried on a call with me last month.
+
+Not about revenue. About the newsletter.
+
+She'd built something people loved and somewhere along the way writing to them had turned into another thing she was failing at weekly.
+
+You're allowed to send less and mean it more. Nobody unsubscribed because the email was too honest.
+
+Send the version you're avoiding. It reads better than the polished one you keep rewriting.`,
+   img:`A laptop closed on a kitchen table, a cold cup of coffee beside it, morning light.`}
+]}
+];
+
+/* ============ SECOND VOICE ============
+   Same idea, written casual and first-person instead of declarative.
+   Erica picks which one sounds like her. Keyed "topic:angle". */
+const ALT = {
+"0:0":`Small billing change I keep recommending right now…
+
+Move your failed payment retry off the next morning and onto the next payday.
+
+Most people get paid on the 1st and the 15th. A card that declines on the 3rd usually isn't cancelled, the account is just empty. Retrying the next morning hits that same empty account and burns the attempt.
+
+Wait for the 15th and the same card clears.
+
+Same customer, same email, different day.`,
+
+"0:2":`Been reading a lot of failed payment emails lately and they all make the same mistake.
+
+They're written by the finance team.
+
+"Your payment has failed." "Update your billing information to avoid service interruption." That's the tone of a parking ticket, sent to someone who never wanted to leave.
+
+Try this instead: "Looks like your card slipped. Update it in ten seconds."
+
+Same ask. The customer just doesn't feel accused.`,
+
+"1:1":`Cancelled six subscriptions last week on purpose, just to see how they'd handle it.
+
+Five threw a discount at me before asking a single question.
+
+The sixth asked one thing first: is this too much product, or the wrong product?
+
+I said too much. It offered to move me from every four weeks to every eight.
+
+I'm still paying them. The other five I'm not.`,
+
+"2:0":`Subscribed to a brand doing $12M with my own card last month, just to see what they'd send.
+
+Day 0: a receipt.
+Day 3: box arrives. Nothing.
+Day 9: first email, a promo for something I hadn't opened yet.
+Day 30: charged again. I'd genuinely forgotten why I signed up.
+
+Their emails were clean. Their open rates were fine.
+
+Nobody had written anything for the part where the customer is actually deciding.`,
+
+"3:0":`Opened an 8-figure brand's welcome flow last week and checked the last edit date.
+
+2021.
+
+Still sending 10% off to people on their fourth order. No mention of the subscription anywhere. Their current bestseller isn't in it at all.
+
+Nobody did anything wrong, everyone's just busy with this month's campaigns.
+
+But the first thing every new customer reads was written by a company that doesn't exist anymore.`,
+
+"4:2":`Client asked me to fix their subject lines a while back.
+
+The subject lines were fine.
+
+Repeat buyers were getting the beginner pitch. New subscribers were being sold products they'd never heard of. And the one thing people kept reordering had no email at all.
+
+We changed who got what, didn't touch a single subject line, and revenue moved.
+
+You can repaint a door all you want. It's still locked.`,
+
+"5:0":`Ran the math on a welcome discount recently and it stuck with me.
+
+4,000 repeat buyers a year hitting the same 10% off code. $60 average order. That's $6 gone every time, to people who were already buying.
+
+$24,000 a year, and it didn't win a single sale.
+
+The fix took an afternoon: split the flow so anyone who's purchased before never sees the code.
+
+New visitors still get it. Loyal customers just get thanked instead.`,
+
+"6:2":`Very bullish on offering annual to your happiest subscribers right now.
+
+Monthly billing asks for the sale twelve times a year. Every charge is another quiet "still sure?"
+
+Annual asks once.
+
+People who prepay stick around noticeably longer, not because they're locked in, but because they decided one time and stopped re-deciding every month.
+
+Offer it as a real reward, two months free, to people six months in. Never as a sneaky default at checkout.`
+};
+
+/* ============ STATE ============ */
+/* ============ THE LOCKED GRAPHIC STYLE ============
+   Paula Scher Public Theater posters. Erica's own Notion page names Scher as
+   her design reference. The type IS the image. Every rule below was learned
+   the hard way across ~20 test generations. */
+
+const IMG_STYLE =
+`Paula Scher Public Theater poster. The type IS the image. No illustration, no \
+icons, no photographs, no people.
+Three colours only: near-black #171717, off-white #EFECE6, lime green #A3FF3D.
+Massive condensed sans-serif capitals packed edge to edge, almost no margin, \
+every line stretched to fill the full width of its column. Wildly mixed sizes \
+stacked hard against each other with almost no leading. Asymmetric and chaotic, \
+never centred or evenly spaced. Thick rules of varying weight separating blocks.
+Flat vintage letterpress. Hard flat colour, high contrast. No gradients, no \
+shadows, no glow, no 3D, no texture overlay. Spelling must be exact. Portrait 3:4.`;
+
+/* rotated so consecutive posters never match */
+const COMPOSITIONS = [
+  'Vertical spine: the accent word rotated 90 degrees running the full height up the left edge, everything else stacked to its right.',
+  'Split column: the frame divided into two uneven vertical columns, giant type left, a tight stack of short lines right.',
+  'Centre punch: one enormous hollow outlined line owning the middle two thirds, smaller lines crushed above and below it.',
+  'Corner block: the accent block anchored in a corner and rotated off the grid, type wrapping around it.',
+  'Ladder: each line a wildly different size, alternating solid and hollow, no two treated alike.',
+  'Banner top: a thick accent bar across the very top holding the first line, giant type filling everything below.'
+];
+const COLOR_MODES = [
+  'Near-black #171717 background, off-white type. One line set inside a solid lime block with near-black knockout letters.',
+  'Full lime #A3FF3D background, near-black type. One line set inside a solid near-black block with lime letters.',
+  'Off-white #EFECE6 background, near-black type. One line set inside a solid near-black block with lime letters. Never lime on off-white, the contrast is too weak, and keep all small text near-black.'
+];
+const DECOR = [
+  'stacked rule bars of decreasing width used as texture, evenly spaced and clearly rules, never mistakable for collapsed letters',
+  'a solid filled circle badge with short knockout text inside it',
+  'a rotated block of type sitting at an angle against the grid',
+  'heavy bracket or corner rules framing part of the composition',
+  'a hairline rule running against a very thick one',
+  'one word reversed out of a filled bar that breaks past the edge of the frame'
+];
+
+function posterFor(i,j){
+  const n = i * 5 + j;                       /* global index, drives rotation */
+  return {
+    comp:  COMPOSITIONS[n % 6],
+    color: COLOR_MODES[n % 3],
+    decor: [DECOR[n % 6], DECOR[(n + 2) % 6]]
+  };
+}
+
+/* The words on each poster. Keyed "topic:angle".
+   Lines must read top to bottom as one complete sentence a stranger
+   understands with no other context. Accent word never appears in it. */
+const POSTERS = {
+"0:0":{lines:["MOST LOST CUSTOMERS","DIDN'T CANCEL.","THEIR CARDS FAILED."],accent:"RETRY",small:"The card expired or the charge declined, and the retry never worked."},
+"0:1":{lines:["CHURN HAS THREE DOORS.","MOST BRANDS","ONLY GUARD ONE."],accent:"REPAIRS",small:"Voluntary, involuntary, passive. Three different repairs."},
+"0:2":{lines:["FAILED PAYMENT EMAILS","SHOULD FEEL","LIKE A FAVOR."],accent:"SAME ASK",small:"Your payment has failed is an accusation. Your card slipped is a helping hand."},
+"0:3":{lines:["FIX FAILED PAYMENTS","BEFORE THE CARDS","EXPIRE."],accent:"PAYDAY",small:"Retry on payday. Write the email like a favor."},
+"0:4":{lines:["SOME CUSTOMERS NEVER","DECIDED TO LEAVE.","THEY JUST GOT A NEW CARD."],accent:"NOT CHURN",small:"The old number stops working and a subscription they liked quietly stops."},
+
+"1:0":{lines:["THE PANIC DISCOUNT","DOESN'T SAVE THE CUSTOMER.","IT SAVES THE MONTH."],accent:"THE EXIT",small:"Most subscribers don't leave over price."},
+"1:1":{lines:["FIVE BRANDS THREW","A COUPON AT ME.","THE SIXTH ASKED WHY."],accent:"STILL HERE",small:"I said too much product. It moved me to every eight weeks."},
+"1:2":{lines:["THE SAVE ISN'T","IN THE COUPON.","IT'S IN THE QUESTION."],accent:"ASK FIRST",small:"Ask why they're leaving. Answer that reason. Discount last."},
+"1:3":{lines:["THE CANCEL SCREEN","IS THE MOST HONEST","CONVERSATION YOU GET."],accent:"TOO LATE",small:"They've already decided. There's nothing left to protect."},
+"1:4":{lines:["MOST CANCEL FLOWS","ASK ZERO QUESTIONS","ON THE WAY OUT."],accent:"TWO CLICKS",small:"Every exit carried the reason you're losing everyone else."},
+
+"2:0":{lines:["THEIR EMAILS WERE CLEAN.","THEY WERE STILL","LOSING SUBSCRIBERS."],accent:"DAY 30",small:"Day 0 a receipt. Day 3 silence. Day 9 a promo. Day 30 charged."},
+"2:1":{lines:["THE FIRST TEN DAYS","DECIDE WHETHER THEY","STAY TEN MONTHS."],accent:"WEEK ONE",small:"Feel a win early and the next charge is a receipt, not a bill."},
+"2:2":{lines:["EVERYONE FUNDS THE AD.","NOBODY OWNS THE","TWO WEEKS AFTER IT."],accent:"UNWATCHED",small:"They already paid. The box hasn't landed. They're wondering."},
+"2:3":{lines:["ONBOARDING IS WHERE","THE PRODUCT PROVES","THE AD WAS TRUE."],accent:"NOT AN EMAIL",small:"Everyone buys the yes, then hands over a receipt and hopes."},
+"2:4":{lines:["ONE EXTRA SENTENCE","TURNS A CHARGE BACK","INTO A CHOICE."],accent:"RENEWAL",small:"Nobody rereads a shipping notice."},
+
+"3:0":{lines:["THE FIRST THING","NEW CUSTOMERS READ","WAS WRITTEN IN 2021."],accent:"STILL LIVE",small:"A brand doing $8M a year. The bestseller isn't even in it."},
+"3:1":{lines:["A STORE ONLY NEEDS","FIVE EMAILS BEFORE","IT NEEDS A SIXTH."],accent:"COUNT YOURS",small:"Written once. Running every day. That's the whole machine."},
+"3:2":{lines:["YOUR WELCOME EMAIL","IS THE FRONT DOOR.","MOST WEAR A SALE SIGN."],accent:"I REPLIED",small:"The best one read like the founder wrote it on a Tuesday night."},
+"3:3":{lines:["YOUR WELCOME EMAIL","SHOULDN'T SELL.","IT SHOULD LAND THE YES."],accent:"PICKED RIGHT",small:"Make them feel like they chose right. Sell later."},
+"3:4":{lines:["THE FLOW EVERYONE","READS FIRST IS THE ONE","NOBODY EVER EDITS."],accent:"THREE NO'S",small:"Does it mention the subscription? Is your bestseller in it?"},
+
+"4:0":{lines:["5% OF YOUR EMAILS","MAKE 41% OF YOUR","EMAIL REVENUE."],accent:"UNSUPERVISED",small:"It's the automatic ones, firing on their own while you sleep."},
+"4:1":{lines:["SEND MORE EMAILS","IS NOT A RETENTION","STRATEGY."],accent:"SPAM TAB",small:"It's a deliverability problem waiting to happen."},
+"4:2":{lines:["THE SUBJECT LINES","WERE FINE. THE DOOR","WAS STILL LOCKED."],accent:"REPAINTED",small:"Repeat buyers were getting the beginner pitch."},
+"4:3":{lines:["CARTS AREN'T ABANDONED","OVER PRICE. THEY'RE","ABANDONED OVER DOUBT."],accent:"10% OFF",small:"Will it fit. When does it arrive. Can I send it back."},
+"4:4":{lines:["IF YOU CAN'T SAY WHAT","AN EMAIL ANSWERS,","THAT'S WHY IT FAILS."],accent:"ONE JOB",small:"Hello: who are you. Win-back: is it worth coming back."},
+
+"5:0":{lines:["REPEAT CUSTOMERS ARE","21% OF YOUR BUYERS","AND 44% OF YOUR REVENUE."],accent:"SAME COUPON",small:"Are you emailing them like it?"},
+"5:1":{lines:["YOUR CART DISCOUNT","TRAINED CUSTOMERS","TO ABANDON CARTS."],accent:"WAIT AN HOUR",small:"You built a rewards program for walking away."},
+"5:2":{lines:["A CUSTOMER BOUGHT","AT 40% OFF LEAVES","THE WAY THEY CAME IN."],accent:"MONTH TWO",small:"They never agreed to what the product actually costs."},
+"5:3":{lines:["SPLIT THE FLOW BY ONE","QUESTION. HAVE THEY","BOUGHT BEFORE?"],accent:"ONE AFTERNOON",small:"Stop paying people to do what they were doing anyway."},
+"5:4":{lines:["IF IT'S WHAT YOU ALWAYS","SEND, IT ISN'T A DISCOUNT.","IT'S A HABIT."],accent:"WHAT FOR?",small:"To win someone new. To thank someone loyal. To clear stock."},
+
+"6:0":{lines:["A BAD CANCEL RATE","FOR ONE BRAND IS","A GREAT ONE FOR ANOTHER."],accent:"WHICH ONE?",small:"Refill products 5 to 8% a month. Surprise boxes 10 to 15%."},
+"6:1":{lines:["LTV IS ONE LINE OF MATH","YOU SHOULD KNOW","BY HEART."],accent:"NOT A DASHBOARD",small:"Revenue times gross margin, divided by churn."},
+"6:2":{lines:["MONTHLY BILLING FEELS","CUSTOMER FRIENDLY. IT'S","OFTEN WHY THEY CHURN."],accent:"2.5x",small:"Annual prepay retains about 2.5 times better than monthly."},
+"6:3":{lines:["YOUR CHURN NUMBER","IS THREE NUMBERS","WEARING ONE COAT."],accent:"SPLIT IT",small:"A billing job. A product job. An email job."},
+"6:4":{lines:["THEY WEREN'T RETAINED.","THEY WERE JUST","STILL ON THE LIST."],accent:"DASHBOARD",small:"Cards died four months ago and were never charged again."},
+
+"7:0":{lines:["I TOLD THREE CLIENTS","TO EMAIL LESS. TWO OF","THEM MADE MORE MONEY."],accent:"HARD SELL",small:"Nobody hires an email person to hear send less."},
+"7:1":{lines:["YOUR EMAIL REVENUE","COUNTS SALES THAT WOULD","HAVE HAPPENED ANYWAY."],accent:"ALREADY COMING",small:"She buys every month regardless. Email takes the credit."},
+"7:2":{lines:["ONLY A HANDFUL OF THINGS","EVER ACTUALLY","MOVED RETENTION."],accent:"THE REST IS NOISE",small:"Not the tactics everyone argues about."},
+"7:3":{lines:["THE EMAIL IS NEVER","THE PROBLEM. IT'S WHERE","THE PROBLEM SHOWS UP."],accent:"ASK THREE",small:"What did they buy it for. When do they feel it working."},
+"7:4":{lines:["RETENTION ISN'T","A DEPARTMENT. IT'S","WHAT'S LEFT OVER."],accent:"NOBODY'S JOB",small:"The email person can't fix a product that arrives too often."},
+
+"8:0":{lines:["IF THE CURVE","NEVER FLATTENS,","IT ISN'T A SUBSCRIPTION."],accent:"COHORTS",small:"It's a slow motion one-time purchase."},
+"8:1":{lines:["LOWERING YOUR PRICE","WON'T FIX CHURN.","85% OF THE TIME"," IT'S THE OFFER."],accent:"WRONG FIT",small:"Wrong size, wrong frequency, wrong product for how they live."},
+"8:2":{lines:["REVENUE FROM EMAIL","IS A VANITY NUMBER.","MARGIN IS THE REAL ONE."],accent:"3 TO 1",small:"Lifetime value against acquisition cost is the number worth defending."},
+"8:3":{lines:["RETENTION IS CHEAPER","THAN ACQUISITION.","AND IT MAKES US LAZY."],accent:"CHEAPER ISN'T FREE",small:"Set and forget flows quietly rot."},
+"8:4":{lines:["WE DIDN'T ADD","A SINGLE NEW FLOW.","REVENUE STILL WENT UP."],accent:"PRUNED",small:"More flows is the expensive answer. Better flows is the right one."},
+
+"9:0":{lines:["MOST EMAIL ADVICE","IS WRITTEN FOR","THE SENDER."],accent:"NOT THE READER",small:"Write the one you'd be glad to get."},
+"9:1":{lines:["THE BEST RETENTION","EMAIL I'VE SEEN","DIDN'T SELL ANYTHING."],accent:"NO OFFER",small:"It just doesn't show up in this week's attribution."},
+"9:2":{lines:["A GOOD POST-PURCHASE","EMAIL ANSWERS A QUESTION","THEY HAVEN'T ASKED YET."],accent:"NOT 20% OFF",small:"Did I choose right. How do I use this. When will I notice."},
+"9:3":{lines:["ADD PAUSE","BEFORE YOU","ADD DISCOUNT."],accent:"ONE LINE",small:"If the only button is cancel, that's the button they press."},
+"9:4":{lines:["YOU'RE ALLOWED TO","SEND LESS AND","MEAN IT MORE."],accent:"TRUTH WITH LOVE",small:"Nobody unsubscribed because the email was too honest."}
+};
+
+/* Posts carrying a first-person or client claim only Erica can confirm.
+   Her own doc says to swap in verified client data before publishing. */
+const CHECK = {
+"1:1":"the six brands you cancelled, and which one earned the save",
+"2:0":"the brand you subscribed to and what they actually sent",
+"3:0":"the $8M brand and the 2021 build date",
+"4:2":"the client who asked you to fix their subject lines",
+"5:0":"the 21% / 44% repeat customer stat",
+"6:0":"the 5 to 8% and 10 to 15% churn bands",
+"6:2":"the 2.5x annual retention figure",
+"6:4":"the founder whose dashboard was counting dead cards",
+"7:0":"the three clients, and the two who made more money",
+"7:2":"which few things actually moved retention for you",
+"0:0":"the 20 to 40% involuntary churn range",
+"4:0":"the 5% of sends driving 41% of email revenue",
+"8:1":"the 85% figure — is that yours or borrowed?",
+"8:2":"the 3 to 1 lifetime value to acquisition cost benchmark",
+"8:4":"the client whose email revenue rose without new flows, and by how much",
+"9:1":"which email you mean, and whether you can name the brand",
+"9:3":"the client whose save rate doubled, and the real before and after",
+"9:4":"the founder call — only run this if she'd be unrecognisable and you're comfortable",
+"3:4":"whether three no's really is the most common answer you get",
+"7:3":"whether these are actually the three questions you open an audit with",
+"9:0":"the Chubbies Weekender example — it's from your own notes, but check you're happy naming them"
+};
+
+/* posters already generated. the rest show the brief instead. */
+const FILES = {
+"0:0":"graphics/out/t01-a1.png",
+"0:1":"graphics/out/t01-a2.png",
+"0:2":"graphics/out/t01-a3.png",
+"0:3":"graphics/out/t01-a4.png",
+"0:4":"graphics/out/t01-a5.png"
+};
+
+function imgPrompt(){
+  const p = POSTERS[curTopic + ':' + curAngle], r = posterFor(curTopic, curAngle);
+  return `${IMG_STYLE}
+
+Colour: ${r.color}
+
+Composition: ${r.comp}
+
+Decoration, use both: ${r.decor.join('; ')}.
+
+The big display lines, exact spelling, read top to bottom as one complete sentence:
+${p.lines.map((l,k) => `${k+1}. "${l}"`).join('\n')}
+
+One accent word set apart from the reading path, never between two lines of the \
+sentence and never a word already used in it: "${p.accent}"
+
+One small block of tightly set capitals, two lines maximum: "${p.small}"
+
+Small lime text in one corner: "NIRVANA"
+
+Rules: every word on the poster belongs to the sentence or is the single accent \
+word. Rotated elements sit in their own clear space and never touch another word. \
+One small block plus nothing else small, leave real breathing room.`;
+}
+
+function copyImgPrompt(){
+  navigator.clipboard.writeText(imgPrompt());
+  const b = document.querySelector('.imgbtn');
+  if (b){ b.textContent = 'Copied'; setTimeout(()=>b.textContent='Copy image prompt', 1400); }
+}
+
+let curTopic = null, curAngle = null, curVer = 0;
+const USED_KEY = 'nirvana-used';
+const VOICE_KEY = 'nirvana-voice';
+const EDIT_KEY = 'nirvana-edits';
+const used = new Set(JSON.parse(localStorage.getItem(USED_KEY) || '[]'));
+const voice = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');   /* "t:a" -> 0 | 1 */
+const edits = JSON.parse(localStorage.getItem(EDIT_KEY) || '{}');    /* "t:a:v" -> her text */
+function saveUsed(){ localStorage.setItem(USED_KEY, JSON.stringify([...used])); }
+function saveVoice(){ localStorage.setItem(VOICE_KEY, JSON.stringify(voice)); }
+function saveEdits(){ localStorage.setItem(EDIT_KEY, JSON.stringify(edits)); }
+function angleId(t,a){ return t + ':' + a; }
+function editId(t,a,v){ return t + ':' + a + ':' + v; }
+
+/* the two ways this post is written, [sharp, casual] */
+/* ============ MAX HOOKS ============
+   Erica's #1 format reference is Max Sturtevant. His opener is casual,
+   first person, something he's seeing right now, trailing into the point.
+   One on every post. The Casual versions already carry their own. */
+const HOOKS = {
+"0:0":"Biggest leak I find in subscription audits right now…",
+"0:1":"Something I keep having to untangle for subscription brands…",
+"0:2":"Failed payment emails that read like a fine…",
+"0:3":"Three failed payment fixes, easiest to hardest…",
+"0:4":"The churn nobody actually chose…",
+"1:0":"The save offer everyone reaches for first…",
+"1:1":"Cancelled six subscriptions last week on purpose…",
+"1:2":"Cancel flows that actually save people…",
+"1:3":"The most honest thirty seconds you get with a customer…",
+"1:4":"Something worth checking in your own cancel flow…",
+"2:0":"Subscribed to a $12M brand with my own card just to see…",
+"2:1":"The ten days that decide the next ten months…",
+"2:2":"The two weeks nobody owns…",
+"2:3":"Onboarding that isn't an email…",
+"2:4":"The most ignored email in subscription ecommerce…",
+"3:0":"Opened an 8-figure brand's welcome flow last week…",
+"3:1":"The five emails a store actually needs…",
+"3:2":"Welcome emails that don't wear a sale sign…",
+"3:3":"Welcome emails that sell nothing…",
+"3:4":"Three questions for your welcome flow…",
+"4:0":"The 5% of emails doing all the heavy lifting…",
+"4:1":"Seeing a lot of brands solve this by sending more…",
+"4:2":"Got hired to fix subject lines that were already fine…",
+"4:3":"Abandoned cart emails answering the wrong question…",
+"4:4":"A test I run on every automated email…",
+"5:0":"The customers everyone discounts by accident…",
+"5:1":"Cart discounts that trained the cart abandoning…",
+"5:2":"Customers you bought at 40% off…",
+"5:3":"One condition worth adding to your welcome flow…",
+"5:4":"A question worth asking before every discount…",
+"6:0":"Cancel rates people panic about for no reason…",
+"6:1":"The LTV math most brands get wrong…",
+"6:2":"Very bullish on annual billing right now…",
+"6:3":"The churn number hiding three different problems…",
+"6:4":"A founder told me his retention was fine…",
+"7:0":"The hardest advice I have to sell…",
+"7:1":"Email revenue numbers that flatter everyone…",
+"7:2":"After years inside DTC email…",
+"7:3":"Three questions I ask before opening a single email…",
+"7:4":"Retention keeps landing on nobody's desk…",
+"8:0":"The chart founders keep scrolling past…",
+"8:1":"The churn fix everyone reaches for last…",
+"8:2":"Email revenue numbers with no margin attached…",
+"8:3":"A cliché I agree with and still argue about…",
+"8:4":"Fixed a client's email revenue without building anything new…",
+"9:0":"Something I keep noticing about email advice…",
+"9:1":"Best retention email I've seen this year…",
+"9:2":"Post-purchase emails that skip straight to the upsell…",
+"9:3":"One line I keep adding to cancel flows…",
+"9:4":"A call I haven't stopped thinking about…"
+};
+
+/* One version per post. The two-voice toggle was retired once every post
+   got a Max hook: the versions read the same and the choice was friction.
+   ALT is kept below as the raw second drafts, unused by the app. */
+function versions(i,j){
+  const a = TOPICS[i].angles[j];
+  const hook = HOOKS[i + ':' + j];
+  return [hook ? hook + '\n\n' + a.text : a.text];
+}
+/* what's actually on screen: her edit if she made one, else ours */
+function currentText(){
+  return edits[editId(curTopic,curAngle,curVer)] ?? versions(curTopic,curAngle)[curVer];
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  const el = document.getElementById(id);
+  void el.offsetWidth;
+  el.classList.add('on');
+  window.scrollTo({top:0});
+}
+
+function renderTopics(){
+  document.getElementById('topicGrid').innerHTML = TOPICS.map((t,i) => `
+    <button class="topic" style="--i:${i}" onclick="goTopic(${i})">
+      <span class="num">${t.num}</span>
+      <h3>${t.title}</h3>
+      <p>${t.desc}</p>
+      <span class="count">${t.angles.length} angles</span>
+    </button>`).join('');
+}
+
+function pickFor(i){
+  const t = TOPICS[i];
+  const order = [t.lead, ...t.angles.map((_,j)=>j).filter(j => j !== t.lead)];
+  return order.find(j => !used.has(angleId(i,j))) ?? t.lead;
+}
+
+function openPost(i, j, v){
+  curTopic = i; curAngle = j;
+  const t = TOPICS[i], a = t.angles[j];
+  const vs = versions(i,j);
+  const key = angleId(i,j);
+  /* default to whichever she already picked, else version 1 */
+  curVer = (v !== undefined) ? v : (voice[key] ?? 0);
+  if (curVer >= vs.length) curVer = 0;
+  const eKey = editId(i,j,curVer);
+  const isEdited = edits[eKey] !== undefined;
+  const body = edits[eKey] ?? vs[curVer];
+  endEdit();
+
+  const eb = document.getElementById('postEyebrow');
+  eb.className = 'eyebrow post';
+  eb.innerHTML =
+    `<span>Topic ${t.num}</span>`
+    + `<span class="anglePill">${a.type}</span>`
+    + `<span class="angleOf">angle ${j+1} of ${t.angles.length}</span>`;
+  document.getElementById('postTitle').textContent = t.title;
+
+  document.getElementById('pickRow').innerHTML = (j === t.lead)
+    ? `<span class="badge">Post this one</span><span class="why">${a.goal} &middot; ${a.why}</span>`
+    : `<span class="tag type">${a.type}</span><span class="why">${a.goal} &middot; ${a.why}</span>`;
+
+  const chk = CHECK[i + ':' + j];
+  document.getElementById('checkBar').innerHTML = chk
+    ? `<b>Check first</b><span>This post uses <b style="color:#EFECE6;letter-spacing:0;text-transform:none;font-size:14px;font-family:inherit">${chk}</b>. Swap in your real numbers before it goes out, or tell us to cut the claim.</span>`
+    : '';
+
+  /* the two-version switch, only when there IS a second version */
+  const VNAME = ['Sharp', 'Casual'];
+  const VSUB  = ['Short declarative lines', "Max Sturtevant's first-person style"];
+  document.getElementById('switchNote').innerHTML = vs.length < 2 ? '' :
+    `Same post, written two ways. <b>Pick the one that sounds like you</b> &mdash; whichever you copy is saved as your voice.`;
+  document.getElementById('verSwitch').innerHTML = vs.length < 2 ? '' :
+    vs.map((_,n) => `
+      <button class="${n===curVer?'on':''}" onclick="setVer(${n})"><b>${VNAME[n]}</b><small>${VSUB[n]}</small></button>`).join('');
+
+  document.getElementById('capBody').onclick = e => {
+    if (!e.target.closest('.inlineedit')) startEdit();
+  };
+  document.getElementById('capBody').innerHTML =
+    `<button class="inlineedit" onclick="startEdit()">Edit</button>`
+    + body.split('\n\n').map(p => '<p>' + p.replace(/\n/g,'<br>') + '</p>').join('');
+
+  const made = FILES[i + ':' + j];
+  document.getElementById('imgSlot').innerHTML = made
+    ? `<div class="madewrap">
+         <img src="${made}" alt="">
+         <a class="imgbtn dl" href="${made}" download="nirvana-${TOPICS[i].num}-${j+1}.png">Download image</a>
+       </div>`
+    : (() => {
+        const p = POSTERS[i + ':' + j], r = posterFor(i, j);
+        return `<div class="ph"><b>The poster</b>
+          <span class="lines">${p.lines.join('<br>')}</span>
+          <span class="style">${r.color.split('.')[0]} &middot; ${r.comp.split(':')[0]} &middot; accent word &ldquo;${p.accent}&rdquo;</span>
+          <button class="imgbtn" onclick="copyImgPrompt()">Copy image prompt</button>
+         </div>`;
+      })();
+
+  const words = body.split(/\s+/).length;
+  document.getElementById('postMeta').innerHTML =
+    `${words} words` + (used.has(angleId(i,j)) ? ' · already posted' : '')
+    + (isEdited ? ' · <span class="edited">your edit</span>' : '');
+  document.getElementById('copyLabel').textContent = 'Copy caption';
+
+  document.getElementById('editNote').innerHTML = isEdited
+    ? `You rewrote this one. <span class="lime">The engine reads your changes and writes the next batch closer to them.</span>
+       <button class="ghost" style="padding:6px 12px;margin-left:8px" onclick="revertEdit()">Undo my edit</button>`
+    : '';
+
+  const others = t.angles.map((a2,k)=>({a2,k})).filter(o => o.k !== j);
+  document.getElementById('altList').innerHTML =
+    `<div class="lede">Or take it from another angle</div>` +
+    others.map((o,n) => {
+      const hook = o.a2.text.split('\n')[0];
+      const isUsed = used.has(angleId(i,o.k));
+      return `
+      <button class="angle" style="--i:${n}" onclick="goPost(${i},${o.k})">
+        <div class="row">
+          <span class="tag type">${o.a2.type}</span>
+          <span class="tag goal">${o.a2.goal}</span>
+          ${isUsed ? '<span class="tag used">Posted</span>' : ''}
+        </div>
+        <div class="hook">&ldquo;${hook}&rdquo;</div>
+      </button>`;
+    }).join('');
+
+  show('s-post');
+}
+
+/* ============ EDITING ============ */
+let editing = false;
+function startEdit(){
+  if (editing) return saveEdit();
+  editing = true;
+  const ta = document.getElementById('capEdit');
+  ta.value = currentText();
+  document.getElementById('card').classList.add('editing');
+  const btn = document.getElementById('editBtn');
+  btn.textContent = 'Save'; btn.classList.add('go');
+  ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
+  ta.focus();
+}
+function saveEdit(){
+  const ta = document.getElementById('capEdit');
+  const text = ta.value.trim();
+  const eKey = editId(curTopic,curAngle,curVer);
+  const original = versions(curTopic,curAngle)[curVer];
+  if (!text || text === original) delete edits[eKey];
+  else edits[eKey] = text;
+  saveEdits();
+  editing = false;
+  openPost(curTopic, curAngle, curVer);
+}
+function endEdit(){
+  editing = false;
+  const card = document.getElementById('card');
+  if (card) card.classList.remove('editing');
+  const btn = document.getElementById('editBtn');
+  if (btn){ btn.textContent = 'Edit'; btn.classList.remove('go'); }
+}
+function revertEdit(){
+  delete edits[editId(curTopic,curAngle,curVer)];
+  saveEdits();
+  openPost(curTopic, curAngle, curVer);
+}
+
+function setVer(n){ openPost(curTopic, curAngle, n); }
+function pickVoice(n){ voice[angleId(curTopic,curAngle)] = n; saveVoice(); openPost(curTopic, curAngle, n); }
+function clearVoice(){ delete voice[angleId(curTopic,curAngle)]; saveVoice(); openPost(curTopic, curAngle, curVer); }
+
+function showTopics(){ show('s-topics'); }
+function goTopic(i){
+  const j = pickFor(i);
+  history.pushState({v:'post',t:i,a:j}, '', '#' + TOPICS[i].num + '-' + (j+1));
+  openPost(i,j);
+}
+function goPost(i,j){
+  history.replaceState({v:'post',t:i,a:j}, '', '#' + TOPICS[i].num + '-' + (j+1));
+  openPost(i,j);
+}
+function goBack(){ history.back(); }
+function applyState(s){
+  if (!s || s.v === 'topics'){ showTopics(); return; }
+  if (s.v === 'post'){ openPost(s.t, s.a); }
+}
+window.addEventListener('popstate', e => applyState(e.state));
+
+function copyPost(){
+  if (editing) saveEdit();
+  const body = currentText();
+  const done = () => {
+    document.getElementById('copyLabel').textContent = 'Copied';
+    used.add(angleId(curTopic,curAngle)); saveUsed();
+    /* copying IS a vote — whatever she actually took is the voice she wants */
+    if (versions(curTopic,curAngle).length > 1 && voice[angleId(curTopic,curAngle)] === undefined){
+      voice[angleId(curTopic,curAngle)] = curVer; saveVoice();
+    }
+    document.getElementById('postMeta').textContent =
+      body.split(/\s+/).length + ' words · already posted';
+    setTimeout(() => { document.getElementById('copyLabel').textContent = 'Copy caption'; }, 2200);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(body).then(done).catch(() => fallbackCopy(body, done));
+  } else fallbackCopy(body, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta); done();
+}
+function resetUsed(){
+  used.clear(); saveUsed();
+  if (curTopic !== null && document.getElementById('s-post').classList.contains('on')) openPost(curTopic, curAngle);
+}
+
+/* everything she taught the engine, emailed straight to Chris */
+const FORM_ENDPOINT = 'https://formspree.io/f/mnjeebed';
+
+function feedbackBody(){
+  const out = [];
+  Object.entries(edits).forEach(([k,text]) => {
+    const [i,j,v] = k.split(':').map(Number);
+    out.push(
+`EDIT — ${TOPICS[i].title} / ${TOPICS[i].angles[j].type}
+OURS:
+${versions(i,j)[v] ?? versions(i,j)[0]}
+HERS:
+${text}`);
+  });
+  return out;
+}
+
+async function exportFeedback(){
+  const out = feedbackBody();
+  if (!out.length){
+    alert('Nothing to send yet. Edit a post first, then send.');
+    return;
+  }
+  const btn = document.getElementById('sendBtn');
+  const was = btn ? btn.textContent : '';
+  if (btn){ btn.textContent = 'Sending…'; btn.disabled = true; }
+
+  const payload = {
+    from: 'Nirvana Content Engine',
+    edits: out.length,
+    posted: [...used].length,
+    feedback: out.join('\n\n----\n\n')
+  };
+
+  try {
+    const res = await fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('send failed');
+    if (btn){ btn.textContent = 'Sent to Chris'; }
+    alert(`Sent. ${out.length} edit${out.length>1?'s':''} are on their way to Chris.`);
+  } catch (e) {
+    /* offline or blocked — fall back to the clipboard so nothing is lost */
+    navigator.clipboard?.writeText(`Nirvana Content Engine — feedback\n\n${out.join('\n\n----\n\n')}`);
+    if (btn){ btn.textContent = was; btn.disabled = false; }
+    alert("Couldn't send just now, so your edits are copied to the clipboard instead. Paste them to Chris and nothing is lost.");
+  }
+}
+
+renderTopics();
+history.replaceState({v:'topics'}, '', location.pathname + location.search);
+</script>
+</body>
+</html>

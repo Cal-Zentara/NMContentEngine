@@ -243,29 +243,21 @@
   .editnote .lime{color:var(--limeade)}
 
   /* alternates */
-  .topbar{
-    position:sticky;top:0;z-index:50;
-    background:var(--limeade);color:var(--obsidian);
-    border-bottom:1px solid rgba(23,23,23,.2);
-  }
-  .topbar-in{
-    max-width:960px;margin:0 auto;padding:14px 26px;
-    display:flex;align-items:center;gap:20px;justify-content:space-between;flex-wrap:wrap;
-  }
-  .tb-copy{
-    font-family:'Futuru',system-ui,sans-serif;font-size:14px;line-height:1.45;
-  }
-  .tb-copy b{display:block;font-weight:800;font-size:15px}
-  .tb-copy span{opacity:.78}
-  .topbar button{
-    background:var(--obsidian);color:var(--limeade);border:none;
+  /* only appears once she's actually edited this post */
+  .sendedit{
+    display:none;background:var(--limeade);color:var(--obsidian);border:none;
     font-family:'Futuru',system-ui,sans-serif;font-size:11px;font-weight:800;
     letter-spacing:.18em;text-transform:uppercase;
-    padding:13px 22px;border-radius:3px;cursor:pointer;white-space:nowrap;
+    padding:15px 24px;border-radius:3px;cursor:pointer;white-space:nowrap;
     transition:opacity .2s;
   }
-  .topbar button:hover{opacity:.85}
-  .topbar button:disabled{opacity:.5;cursor:default}
+  .sendedit.on{display:inline-block}
+  .sendedit:hover{opacity:.85}
+  .sendedit:disabled{opacity:.55;cursor:default}
+  .sendstate{
+    font-family:'Futuru',system-ui,sans-serif;font-size:12.5px;
+    color:var(--limeade);margin-top:12px;min-height:1px;
+  }
 
   .alts{margin-top:44px;max-width:600px}
   .alts .lede{
@@ -306,16 +298,6 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-in">
-    <div class="tb-copy">
-      <b>Edit anything you like.</b>
-      <span id="sendState">Every change you save is sent to Chris automatically.</span>
-    </div>
-    <button id="sendBtn" onclick="exportFeedback()">Send now</button>
-  </div>
-</div>
-
 <div class="wrap">
 
   <section class="screen on" id="s-topics">
@@ -348,8 +330,10 @@
           <span id="copyLabel">Copy caption</span>
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
+        <button id="sendBtn" class="sendedit" onclick="exportFeedback()">Send my edit to Chris</button>
         <span class="meta" id="postMeta"></span>
       </div>
+      <p class="sendstate" id="sendState"></p>
     </div>
     <div class="alts" id="altList"></div>
   </section>
@@ -1379,6 +1363,16 @@ function openPost(i, j, v){
     ? `<span class="badge">Post this one</span><span class="why">${a.goal} &middot; ${a.why}</span>`
     : `<span class="tag type">${a.type}</span><span class="why">${a.goal} &middot; ${a.why}</span>`;
 
+  /* the send button only exists once she's edited this post */
+  const sBtn = document.getElementById('sendBtn');
+  if (sBtn){
+    sBtn.classList.toggle('on', isEdited);
+    sBtn.disabled = false;
+    sBtn.textContent = 'Send my edit to Chris';
+  }
+  const sState = document.getElementById('sendState');
+  if (sState) sState.textContent = '';
+
   const chk = CHECK[i + ':' + j];
   document.getElementById('checkBar').innerHTML = chk
     ? `<b>Check first</b><span>This post uses <b style="color:#EFECE6;letter-spacing:0;text-transform:none;font-size:14px;font-family:inherit">${chk}</b>. Swap in your real numbers before it goes out, or tell us to cut the claim.</span>`
@@ -1478,7 +1472,7 @@ let sendTimer = null;
 function queueSend(){
   clearTimeout(sendTimer);
   const s = document.getElementById('sendState');
-  if (s) s.textContent = 'Saved. Sending to Chris shortly…';
+  if (s) s.textContent = 'Saved. Sending to Chris automatically, or hit the button now.';
   sendTimer = setTimeout(function(){ exportFeedback(true); }, 60000);
 }
 function endEdit(){
@@ -1589,8 +1583,8 @@ async function exportFeedback(auto){
     });
     if (!res.ok) throw new Error('send failed');
     const n = out.length;
-    if (state) state.textContent = `Sent to Chris · ${n} edit${n>1?'s':''}`;
-    if (btn && !auto){ btn.textContent = 'Sent to Chris'; }
+    if (state) state.textContent = `Sent to Chris · ${n} edit${n>1?'s':''} so far`;
+    if (btn){ btn.textContent = 'Sent'; btn.disabled = true; }
     if (!auto) alert(`Sent. ${n} edit${n>1?'s':''} are on their way to Chris.`);
   } catch (e) {
     /* offline or blocked — nothing is lost, her edits are still saved here */

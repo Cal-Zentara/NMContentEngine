@@ -364,6 +364,36 @@
   .cal .ty.frame{background:var(--ivory);color:var(--obsidian)}
   .cal .sub2{color:var(--muted);font-size:13.5px;display:block;margin-top:5px}
   .calwrap{overflow-x:auto}
+  .cal td{padding:0;border-bottom:1px solid var(--line)}
+  .cal td.wk{padding:20px 14px 20px 0}
+  .calslot{
+    display:block;width:100%;text-align:left;background:none;border:none;
+    color:inherit;font-family:inherit;font-size:inherit;line-height:1.5;
+    padding:18px 16px 18px 14px;margin:6px 8px 6px 0;cursor:pointer;
+    border-radius:var(--radius);transition:background .2s;
+  }
+  .calslot:hover{background:var(--evergreen)}
+  .calslot .slotname{display:block;margin-top:9px;font-size:16px}
+  .calslot .nt{font-style:italic;opacity:.82}
+  @media(min-width:760px){.cal td:not(.wk){min-width:290px}}
+  /* on a phone the three columns stack, so nothing scrolls sideways */
+  @media(max-width:759px){
+    .cal, .cal tbody, .cal tr, .cal td{display:block;width:100%}
+    .cal thead{display:none}
+    .cal tr{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px}
+    .cal tr:last-child{border-bottom:none}
+    .cal td{border-bottom:none}
+    .cal td.wk{
+      padding:0 0 4px;font-family:'Futuru',system-ui,sans-serif;
+      font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--limeade);
+    }
+    .calslot{margin:0 0 8px;padding:16px 14px;background:var(--evergreen-deep)}
+    .calslot::before{
+      content:attr(data-day);display:block;color:var(--muted);
+      font-family:'Futuru',system-ui,sans-serif;font-size:10.5px;
+      letter-spacing:.2em;text-transform:uppercase;margin-bottom:9px;
+    }
+  }
 
   .needs{display:grid;gap:12px;margin-top:4px}
   .need{
@@ -436,38 +466,14 @@
 
     <div class="plansec">
       <h2>The next eight weeks</h2>
+      <p class="plannote" style="margin-top:0;margin-bottom:22px">Every slot below is already written. Tap any one of them to read it.</p>
       <div class="calwrap">
       <table class="cal">
         <thead><tr><th>Week</th><th>Tuesday</th><th>Thursday</th></tr></thead>
-        <tbody>
-          <tr><td class="wk">1 &middot; Aug 11</td>
-            <td><span class="ty">Tactical</span>The leak<span class="sub2">Open on the strongest one. The cancels nobody chose.</span></td>
-            <td><span class="ty reach">Reach</span><span class="sub2">Short, no tactics. Something anyone running a business feels.</span></td></tr>
-          <tr><td class="wk">2 &middot; Aug 18</td>
-            <td><span class="ty frame">Framework</span>Named, with a poster<span class="sub2">Give the idea a name so people can repeat it without you.</span></td>
-            <td><span class="ty">Tactical</span>The math</td></tr>
-          <tr><td class="wk">3 &middot; Aug 25</td>
-            <td><span class="ty">Tactical</span>The leak</td>
-            <td><span class="ty">Your story</span><span class="sub2">Trust post. People buy from people.</span></td></tr>
-          <tr><td class="wk">4 &middot; Sep 1</td>
-            <td><span class="ty">Tactical</span>The math</td>
-            <td><span class="ty reach">Reach</span></td></tr>
-          <tr><td class="wk">5 &middot; Sep 8</td>
-            <td><span class="ty frame">Framework</span>Named, with a poster</td>
-            <td><span class="ty">Tactical</span>The leak</td></tr>
-          <tr><td class="wk">6 &middot; Sep 15</td>
-            <td><span class="ty">Tactical</span>The math</td>
-            <td><span class="ty reach">Reach</span></td></tr>
-          <tr><td class="wk">7 &middot; Sep 22</td>
-            <td><span class="ty">Tactical</span>The truth</td>
-            <td><span class="ty">Your story</span></td></tr>
-          <tr><td class="wk">8 &middot; Sep 29</td>
-            <td><span class="ty frame">Framework</span>Or a teardown, if we have one you'll stand behind</td>
-            <td><span class="ty reach">Reach</span><span class="sub2">Then we look at the numbers and adjust.</span></td></tr>
-        </tbody>
+        <tbody id="calBody"></tbody>
       </table>
       </div>
-      <p class="plannote">Sixteen posts. Never two of the same kind back to back. If Wednesday changes the direction, the shape stays and the topics move.</p>
+      <p class="plannote">Sixteen posts, never two of the same kind back to back. The four marked Reach and the three marked Framework are written long right now — those get cut short or given a name before they go out, and the note on each one says which. If Wednesday changes the direction, the shape stays and the topics move.</p>
     </div>
 
     <div class="plansec">
@@ -1681,6 +1687,65 @@ function goPlan(){
   history.pushState({v:'plan'}, '', '#plan');
   showPlan();
 }
+
+/* The 8-week schedule. Each slot names a real post: [topic index, angle index].
+   kind = the job it does that day. note = what changes about it before it ships. */
+const SCHEDULE = [
+ {wk:"1", date:"Aug 11", slots:[
+   {t:0,a:0,kind:"Tactical",lane:"The leak",note:"Open on the strongest one you have. One number nobody can argue with."},
+   {t:7,a:0,kind:"Reach",lane:"Your POV",note:"Cut to about 100 words before it goes out. No tactics, one line per paragraph."}]},
+ {wk:"2", date:"Aug 18", slots:[
+   {t:6,a:1,kind:"Framework",lane:"The math",note:"Give it a name you'll keep using. A named idea gets repeated without you in the room."},
+   {t:8,a:2,kind:"Tactical",lane:"The math",note:"The profitability lens almost no email advice bothers with."}]},
+ {wk:"3", date:"Aug 25", slots:[
+   {t:7,a:2,kind:"Your story",lane:"The truth",note:"Trust post. People buy from people."},
+   {t:1,a:1,kind:"Tactical",lane:"The leak",note:"You did this yourself, which is why it lands. Highest-shareability format in the category."}]},
+ {wk:"4", date:"Sep 1", slots:[
+   {t:9,a:0,kind:"Reach",lane:"The truth",note:"Your manifesto. Cut it short and end on the question, it's built to travel."},
+   {t:5,a:0,kind:"Tactical",lane:"The math",note:"A number they can run on their own brand the same afternoon."}]},
+ {wk:"5", date:"Sep 8", slots:[
+   {t:0,a:1,kind:"Framework",lane:"The leak",note:"Name this one too. Ships with a poster, frameworks get saved more than anything else."},
+   {t:2,a:0,kind:"Tactical",lane:"The leak",note:"An audit they can run on themselves before they finish reading."}]},
+ {wk:"6", date:"Sep 15", slots:[
+   {t:8,a:3,kind:"Reach",lane:"The truth",note:"Nuances a line the whole industry repeats. Short version, ends on a question."},
+   {t:6,a:3,kind:"Tactical",lane:"The math",note:"Takes one number they already stare at and gives it three jobs."}]},
+ {wk:"7", date:"Sep 22", slots:[
+   {t:9,a:4,kind:"Your story",lane:"The truth",note:"Truth with love, in full. The most human thing in the batch."},
+   {t:7,a:4,kind:"Tactical",lane:"The truth",note:"The ownership gap. This is the one that makes Nirvana make sense."}]},
+ {wk:"8", date:"Sep 29", slots:[
+   {t:3,a:1,kind:"Framework",lane:"The leak",note:"Swap this for a real teardown if you have one you'll stand behind by then."},
+   {t:2,a:2,kind:"Reach",lane:"The leak",note:"Already written short. Then we look at the numbers and adjust the next eight weeks."}]}
+];
+
+function calClass(kind){
+  if (kind === 'Reach') return 'ty reach';
+  if (kind === 'Framework') return 'ty frame';
+  return 'ty';
+}
+
+function renderCal(){
+  document.getElementById('calBody').innerHTML = SCHEDULE.map(w => `
+    <tr>
+      <td class="wk">${w.wk} &middot; ${w.date}</td>
+      ${w.slots.map((s, n) => {
+        const t = TOPICS[s.t], a = t.angles[s.a];
+        return `<td>
+          <button class="calslot" data-day="${n === 0 ? 'Tuesday' : 'Thursday'}" onclick="planOpen(${s.t},${s.a})">
+            <span class="${calClass(s.kind)}">${s.kind}</span>
+            <span class="slotname">Topic ${t.num} &middot; ${t.title}</span>
+            <span class="sub2">Angle ${s.a+1} of 5, the ${a.type.toLowerCase()} one &middot; ${s.lane}</span>
+            <span class="sub2 nt">${s.note}</span>
+          </button>
+        </td>`;
+      }).join('')}
+    </tr>`).join('');
+}
+
+/* open a specific post straight from the calendar */
+function planOpen(i, j){
+  history.pushState({v:'post',t:i,a:j}, '', '#' + TOPICS[i].num + '-' + (j+1));
+  openPost(i,j);
+}
 function goTopic(i){
   const j = pickFor(i);
   history.pushState({v:'post',t:i,a:j}, '', '#' + TOPICS[i].num + '-' + (j+1));
@@ -1802,6 +1867,7 @@ window.addEventListener('beforeunload', function(){
 });
 
 renderTopics();
+renderCal();
 history.replaceState({v:'topics'}, '', location.pathname + location.search);
 </script>
 </body>

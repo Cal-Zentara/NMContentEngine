@@ -554,9 +554,9 @@ Fix the retries and add a card updater before you touch anything else. You alrea
    img:`Ten cardboard boxes in a row. Six solid, four drawn as faded dotted outlines. Below them a cracked credit card marked EXP with an arrow pointing at the missing four.`},
 
   {type:"Contrarian", goal:"Grows the audience", why:"names a framework she can own",
-   text:`Churn has three doors.
+   text:`I call it the Three Doors.
 
-Most brands only guard one.
+Churn leaves through three of them, and most brands only guard one.
 
 Voluntary: they chose to leave.
 Involuntary: the card failed and nobody chose anything.
@@ -564,7 +564,7 @@ Passive: the product arrives faster than they use it.
 
 Same number on your dashboard. Three completely different repairs.
 
-Split one month of cancels into those three buckets. Whichever is biggest tells you which team owns the fix.`,
+Split one month of cancels into the three doors. Whichever is widest tells you which team owns the fix.`,
    img:`Three simple doors drawn side by side, labeled "chose to leave", "card failed", "too much product". One door has a guard standing at it. The other two are wide open.`},
 
   {type:"Teardown", goal:"Brings buyers", why:"a rewrite they can copy today",
@@ -682,7 +682,9 @@ Subscribe to your own brand with your own card and read what lands in the first 
    img:`A calendar timeline with four marked days. Day 0 a receipt, Day 3 a box with a silence symbol, Day 9 a discount tag, Day 30 a charge with a question mark. The gaps between are shaded empty.`},
 
   {type:"Framework", goal:"Builds authority", why:"one free message that saves renewals",
-   text:`The first ten days decide whether they stay ten months.
+   text:`I call it the Ten Day Window.
+
+The first ten days decide whether they stay ten months.
 
 Week one is when the habit forms. If they use the thing and feel it working, the next charge is a receipt for something they already value.
 
@@ -842,7 +844,9 @@ Ask support for the three questions people ask most before buying, then answer t
    img:`A shopping cart with three worry bubbles above it reading will it fit, when does it come, can I return it. A discount tag being handed over that matches none of them.`},
 
   {type:"Framework", goal:"Builds authority", why:"gives every email one job",
-   text:`Every automated email answers one question.
+   text:`I call it One Question Per Email.
+
+Every automated email exists to answer one, and only one.
 
 Hello: who are you.
 Abandoned cart: should I trust you.
@@ -1294,7 +1298,7 @@ function posterFor(i,j){
    understands with no other context. Accent word never appears in it. */
 const POSTERS = {
 "0:0":{lines:["MOST LOST CUSTOMERS","DIDN'T CANCEL.","THEIR CARDS FAILED."],accent:"RETRY",small:"The card expired or the charge declined, and the retry never worked."},
-"0:1":{lines:["CHURN HAS THREE DOORS.","MOST BRANDS","ONLY GUARD ONE."],accent:"REPAIRS",small:"Voluntary, involuntary, passive. Three different repairs."},
+"0:1":{lines:["THE THREE DOORS.","MOST BRANDS","ONLY GUARD ONE."],accent:"REPAIRS",small:"Voluntary, involuntary, passive. Three different repairs."},
 "0:2":{lines:["FAILED PAYMENT EMAILS","SHOULD FEEL","LIKE A FAVOR."],accent:"SAME ASK",small:"Your payment has failed is an accusation. Your card slipped is a helping hand."},
 "0:3":{lines:["FIX FAILED PAYMENTS","BEFORE THE CARDS","EXPIRE."],accent:"PAYDAY",small:"Retry on payday. Write the email like a favor."},
 "0:4":{lines:["SOME CUSTOMERS NEVER","DECIDED TO LEAVE.","THEY JUST GOT A NEW CARD."],accent:"NOT CHURN",small:"The old number stops working and a subscription they liked quietly stops."},
@@ -1306,7 +1310,7 @@ const POSTERS = {
 "1:4":{lines:["MOST CANCEL FLOWS","ASK ZERO QUESTIONS","ON THE WAY OUT."],accent:"TWO CLICKS",small:"Every exit carried the reason you're losing everyone else."},
 
 "2:0":{lines:["THEIR EMAILS WERE CLEAN.","THEY WERE STILL","LOSING SUBSCRIBERS."],accent:"DAY 30",small:"Day 0 a receipt. Day 3 silence. Day 9 a promo. Day 30 charged."},
-"2:1":{lines:["THE FIRST TEN DAYS","DECIDE WHETHER THEY","STAY TEN MONTHS."],accent:"WEEK ONE",small:"Feel a win early and the next charge is a receipt, not a bill."},
+"2:1":{lines:["THE TEN DAY WINDOW.","TEN DAYS DECIDE","TEN MONTHS."],accent:"WEEK ONE",small:"Feel a win early and the next charge is a receipt, not a bill."},
 "2:2":{lines:["EVERYONE FUNDS THE AD.","NOBODY OWNS THE","TWO WEEKS AFTER IT."],accent:"UNWATCHED",small:"They already paid. The box hasn't landed. They're wondering."},
 "2:3":{lines:["ONBOARDING IS WHERE","THE PRODUCT PROVES","THE AD WAS TRUE."],accent:"NOT AN EMAIL",small:"Everyone buys the yes, then hands over a receipt and hopes."},
 "2:4":{lines:["ONE EXTRA SENTENCE","TURNS A CHARGE BACK","INTO A CHOICE."],accent:"RENEWAL",small:"Nobody rereads a shipping notice."},
@@ -1321,7 +1325,7 @@ const POSTERS = {
 "4:1":{lines:["SEND MORE EMAILS","IS NOT A RETENTION","STRATEGY."],accent:"SPAM TAB",small:"It's a deliverability problem waiting to happen."},
 "4:2":{lines:["THE SUBJECT LINES","WERE FINE. THE DOOR","WAS STILL LOCKED."],accent:"REPAINTED",small:"Repeat buyers were getting the beginner pitch."},
 "4:3":{lines:["CARTS AREN'T ABANDONED","OVER PRICE. THEY'RE","ABANDONED OVER DOUBT."],accent:"10% OFF",small:"Will it fit. When does it arrive. Can I send it back."},
-"4:4":{lines:["IF YOU CAN'T SAY WHAT","AN EMAIL ANSWERS,","THAT'S WHY IT FAILS."],accent:"ONE JOB",small:"Hello: who are you. Win-back: is it worth coming back."},
+"4:4":{lines:["ONE QUESTION","PER EMAIL.","NAME IT OR CUT IT."],accent:"ONE JOB",small:"Hello: who are you. Win-back: is it worth coming back."},
 
 "5:0":{lines:["REPEAT CUSTOMERS ARE","21% OF YOUR BUYERS","AND 44% OF YOUR REVENUE."],accent:"SAME COUPON",small:"Are you emailing them like it?"},
 "5:1":{lines:["YOUR CART DISCOUNT","TRAINED CUSTOMERS","TO ABANDON CARTS."],accent:"WAIT AN HOUR",small:"You built a rewards program for walking away."},
@@ -1783,8 +1787,8 @@ const SCHEDULE = [
     note:"A number they can run on their own brand the same afternoon."}]},
  {wk:"5", date:"Sep 8", slots:[
    {t:0,a:1,kind:"Named idea",lane:"Where subscribers disappear",
-    name:"Churn has three doors",
-    note:"Give this one a name too. Goes out with a poster, these get saved most."},
+    name:"The Three Doors",
+    note:"Named, so people repeat it without you. Goes out with a poster, these get saved most."},
    {t:2,a:0,kind:"Teaching",lane:"Where subscribers disappear",
     name:"The first thirty days at most subscription brands",
     note:"An audit they can run on themselves before they finish reading."}]},

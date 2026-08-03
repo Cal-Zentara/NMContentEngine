@@ -243,6 +243,30 @@
   .editnote .lime{color:var(--limeade)}
 
   /* alternates */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:var(--limeade);color:var(--obsidian);
+    border-bottom:1px solid rgba(23,23,23,.2);
+  }
+  .topbar-in{
+    max-width:960px;margin:0 auto;padding:14px 26px;
+    display:flex;align-items:center;gap:20px;justify-content:space-between;flex-wrap:wrap;
+  }
+  .tb-copy{
+    font-family:'Futuru',system-ui,sans-serif;font-size:14px;line-height:1.45;
+  }
+  .tb-copy b{display:block;font-weight:800;font-size:15px}
+  .tb-copy span{opacity:.78}
+  .topbar button{
+    background:var(--obsidian);color:var(--limeade);border:none;
+    font-family:'Futuru',system-ui,sans-serif;font-size:11px;font-weight:800;
+    letter-spacing:.18em;text-transform:uppercase;
+    padding:13px 22px;border-radius:3px;cursor:pointer;white-space:nowrap;
+    transition:opacity .2s;
+  }
+  .topbar button:hover{opacity:.85}
+  .topbar button:disabled{opacity:.5;cursor:default}
+
   .alts{margin-top:44px;max-width:600px}
   .alts .lede{
     font-family:'Futuru',system-ui,sans-serif;font-size:11px;letter-spacing:.22em;
@@ -281,6 +305,17 @@
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="tb-copy">
+      <b>Edit anything you like.</b>
+      <span id="sendState">Every change you save is sent to Chris automatically.</span>
+    </div>
+    <button id="sendBtn" onclick="exportFeedback()">Send now</button>
+  </div>
+</div>
+
 <div class="wrap">
 
   <section class="screen on" id="s-topics">
@@ -313,7 +348,6 @@
           <span id="copyLabel">Copy caption</span>
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
-        <button class="ghost" id="editBtn" onclick="startEdit()">Edit</button>
         <span class="meta" id="postMeta"></span>
       </div>
     </div>
@@ -323,7 +357,6 @@
   <footer>
     <div>Drafts by the Nirvana Content Engine &middot; nothing publishes without you</div>
     <div style="display:flex;gap:18px;flex-wrap:wrap">
-      <button id="sendBtn" onclick="exportFeedback()">Send my edits to Chris</button>
       <button onclick="resetUsed()">Reset posted marks</button>
     </div>
   </footer>
@@ -1421,8 +1454,8 @@ function startEdit(){
   const ta = document.getElementById('capEdit');
   ta.value = currentText();
   document.getElementById('card').classList.add('editing');
-  const btn = document.getElementById('editBtn');
-  btn.textContent = 'Save'; btn.classList.add('go');
+  const btn = document.querySelector('#capBody .inlineedit');
+  if (btn){ btn.textContent = 'Save'; btn.classList.add('go'); }
   ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
   ta.focus();
 }
@@ -1436,12 +1469,23 @@ function saveEdit(){
   saveEdits();
   editing = false;
   openPost(curTopic, curAngle, curVer);
+  queueSend();
+}
+
+/* Every save goes to Chris. Batched: if she's mid-session and saves five
+   posts in a row, that's one email with all five, not five emails. */
+let sendTimer = null;
+function queueSend(){
+  clearTimeout(sendTimer);
+  const s = document.getElementById('sendState');
+  if (s) s.textContent = 'Saved. Sending to Chris shortly…';
+  sendTimer = setTimeout(function(){ exportFeedback(true); }, 60000);
 }
 function endEdit(){
   editing = false;
   const card = document.getElementById('card');
   if (card) card.classList.remove('editing');
-  const btn = document.getElementById('editBtn');
+  const btn = document.querySelector('#capBody .inlineedit');
   if (btn){ btn.textContent = 'Edit'; btn.classList.remove('go'); }
 }
 function revertEdit(){
@@ -1518,15 +1562,17 @@ ${text}`);
   return out;
 }
 
-async function exportFeedback(){
+async function exportFeedback(auto){
   const out = feedbackBody();
   if (!out.length){
-    alert('Nothing to send yet. Edit a post first, then send.');
+    if (!auto) alert('Nothing to send yet. Edit a post first, then send.');
     return;
   }
+  const state = document.getElementById('sendState');
   const btn = document.getElementById('sendBtn');
   const was = btn ? btn.textContent : '';
-  if (btn){ btn.textContent = 'Sending…'; btn.disabled = true; }
+  if (state) state.textContent = 'Sending to Chris…';
+  if (btn && !auto){ btn.textContent = 'Sending…'; btn.disabled = true; }
 
   const payload = {
     from: 'Nirvana Content Engine',
@@ -1542,15 +1588,33 @@ async function exportFeedback(){
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('send failed');
-    if (btn){ btn.textContent = 'Sent to Chris'; }
-    alert(`Sent. ${out.length} edit${out.length>1?'s':''} are on their way to Chris.`);
+    const n = out.length;
+    if (state) state.textContent = `Sent to Chris · ${n} edit${n>1?'s':''}`;
+    if (btn && !auto){ btn.textContent = 'Sent to Chris'; }
+    if (!auto) alert(`Sent. ${n} edit${n>1?'s':''} are on their way to Chris.`);
   } catch (e) {
-    /* offline or blocked — fall back to the clipboard so nothing is lost */
-    navigator.clipboard?.writeText(`Nirvana Content Engine — feedback\n\n${out.join('\n\n----\n\n')}`);
-    if (btn){ btn.textContent = was; btn.disabled = false; }
-    alert("Couldn't send just now, so your edits are copied to the clipboard instead. Paste them to Chris and nothing is lost.");
+    /* offline or blocked — nothing is lost, her edits are still saved here */
+    if (state) state.textContent = "Couldn't send. Your edits are safe here, we'll try again on the next save.";
+    if (btn && !auto){ btn.textContent = was; btn.disabled = false; }
+    if (!auto){
+      navigator.clipboard?.writeText(`Nirvana Content Engine — feedback\n\n${out.join('\n\n----\n\n')}`);
+      alert("Couldn't send just now, so your edits are copied to the clipboard instead. Paste them to Chris and nothing is lost.");
+    }
   }
 }
+
+/* if she closes the tab with a send still pending, fire it now */
+window.addEventListener('beforeunload', function(){
+  if (!sendTimer) return;
+  clearTimeout(sendTimer);
+  const out = feedbackBody();
+  if (!out.length || !navigator.sendBeacon) return;
+  navigator.sendBeacon(FORM_ENDPOINT, new Blob([JSON.stringify({
+    from: 'Nirvana Content Engine (tab closed)',
+    edits: out.length,
+    feedback: out.join('\n\n----\n\n')
+  })], {type:'application/json'}));
+});
 
 renderTopics();
 history.replaceState({v:'topics'}, '', location.pathname + location.search);
